@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 import numpy as np
-import argparse, os, sys
 from math import sqrt
-
-#grad_preco,optim
 
 def forcing_term_TRN(optim):
     """

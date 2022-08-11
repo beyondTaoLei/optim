@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-import os, sys, json
+import os
+import sys
+import json
 import numpy as np
 from angle_restart import angle_restart
 

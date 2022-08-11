@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-import numpy as np
 import math
+import numpy as np
 
 def beta_PNLCG(grad_prev, descent_prev, grad, grad_preco, powell):
     """

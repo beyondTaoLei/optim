@@ -37,8 +37,8 @@ cmd_misfit = ['python3 ../prob/forward.py ' + fdir,
 cmd_gradient = ['python3 ../prob/kernel.py ' + fdir +' 0',
                 'python3 ../prob/my_grad.py ' + fdir
                ]
-cmd_descent = ['python3 ../../../PNLCG/init_PNLCG.py ' + fdir,
-               'python3 ../../../PNLCG/descent_PNLCG.py ' + fdir
+cmd_descent = ['python3 ../../../PNLCG/init.py ' + fdir,
+               'python3 ../../../PNLCG/descent.py ' + fdir
               ]
 cmd_misfit_current = 'python3 ../../../linesearch/S0_alpha.py ' + fdir
 cmd_misfit_test1 = ['python3 ../prob/forward.py ' + fdir,

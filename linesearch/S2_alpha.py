@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-import os, sys, json
+import os
+import sys
+import json
 import numpy as np
-from ployfit2 import ployfit2
 from shutil import copyfile
+from ployfit2 import ployfit2
 
 #Input paras
 fdir        =sys.argv[1] #'optim'

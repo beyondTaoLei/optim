@@ -20,7 +20,9 @@ dx          =optim['d2g']
 dy          =optim['d1g']
 fmodfd      =optim['fmodfd']
 fmod        =os.path.join('../..', fmodfd)
-frec        ='receiver.csv'
+# input file
+frec        ='receiver.csv' 
+# output file
 ftime       ='time.csv'
 fraypath    ='raypath.dat'
 ftimetable  ='timefield.bin'

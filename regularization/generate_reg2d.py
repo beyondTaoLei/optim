@@ -10,7 +10,6 @@ from util import opt_identity, opt_deriv, opt_laplace
 fdir        =sys.argv[1] #optim
 foptim      =os.path.join(fdir,'optim.json')
 optim       =eval(open(foptim).read())
-iterc       =optim['iterc']
 n1          =optim['n1']
 n2          =optim['n2']
 d1          =optim['d1']
