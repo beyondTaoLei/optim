@@ -5,6 +5,7 @@ Usage:
 """
 import os
 import sys
+import json
 import numpy as np
 from scipy.interpolate import griddata
 from scipy.ndimage import gaussian_filter
@@ -28,8 +29,9 @@ smooth_size =optim['smooth_size'] #5
 taper       =optim['taper']
 ftaper      =optim['ftaper']
 fgrad       =optim['fgrad']
+eps_scale   =optim['eps_scale']
+fmod        =optim['fmodfd']
 fin         =fgrad+'_0'
-fout        =fgrad+'_1'
 
 #a. interpolate
 grad=np.fromfile(fin, np.float32)
@@ -71,14 +73,39 @@ if taper==1:
     taper=np.fromfile(ftaper, np.float32)
     grad=grad.flatten()*taper
 
-grad.astype(np.float32).tofile(fout)
+
+#d. scaling
+if 'SCALING_FACTOR' not in optim:
+    mod =np.fromfile(fmod, np.float32)
+    mod_max=np.abs(mod).max().item()
+    grad_max=np.abs(grad).max().item()
+    SCALING_FACTOR=eps_scale*mod_max/grad_max
+    SCALING_FACTOR=1.0/SCALING_FACTOR
+    print("*** generate SCALING_FACTOR at first iteration ***")
+    print("SCALING_FACTOR= %e"%SCALING_FACTOR)
+    print("eps_scale=%f,mod_max=%.2f,grad_max=%f\n"%(eps_scale,mod_max,grad_max))
+    optim.update({'modmax0':   mod_max, \
+                  'gradmax0':  grad_max,\
+                  'SCALING_FACTOR':SCALING_FACTOR
+            })
+    fout2 = open(foptim,'w')
+    fout2.write(json.dumps(optim,indent=4))
+    fout2.close()
+else: #read
+    SCALING_FACTOR =optim['SCALING_FACTOR']
+    print("*** read SCALING_FACTOR from file: "+foptim+" ***")
+    print("SCALING_FACTOR= %e"%SCALING_FACTOR)
+
+max0=np.abs(grad).max()/10.
+grad=grad/SCALING_FACTOR
 max1=np.abs(grad).max()/10.
+grad.astype(np.float32).tofile(fgrad)
 
 print("\nbefore processing...")
-print("\nximage  n1=%d n2=%d cmap=hsv2 bclip=%f wclip=%f <%s\n"% \
-     (n1, n2, max1, -max1, fin))
+print("\nximage  n1=%d cmap=hsv2 bclip=%f wclip=%f <%s\n"% \
+     (n1, max0, -max0, fin))
 print("after processing...")
-print("\nximage  n1=%d n2=%d cmap=hsv2 bclip=%f wclip=%f <%s\n"% \
-     (n1g, n2g, max1, -max1, fout))
-print("*"*60+"\n*Output file: "+fout)
+print("\nximage  n1=%d cmap=hsv2 bclip=%f wclip=%f <%s\n"% \
+     (n1g, max1, -max1, fgrad))
+print("*"*60+"\n*Output file: "+fgrad)
 print("Finished...", __file__)

@@ -28,6 +28,7 @@ def generate_cmdfile(jobnm, joblist, queuenm, ncores, wtime, headers, parallel=1
     hdconf ='''#!/bin/bash
     #BSUB -q queuenm
     #BSUB -n ncores
+    #BSUB -R "span[ptile=ncores]"
     #BSUB -W wtime
     #BSUB -e %J.err
     #BSUB -o %J.out
@@ -62,38 +63,44 @@ def run_current_step(jobc, iterc):
     """
     submit the current task.
     """
-    outs, errs = [], []
-    for job in jobc:
-        name = job.split('/')[-1][:-4]
-        out = 'log/out.%s.it%d'%(name, iterc)
-        err = 'log/err.%s.it%d'%(name, iterc)
-        outs.append(out)
-        errs.append(err)
-        cmd = 'bsub -J %s <%s -o %s -e %s >>log/lsf.log'%(name, job, out, err)
+    num = len(jobc)
+    names, outs, errs = [], [], []
+    for i in range(num):
+        name = jobc[i].split('/')[-1][:-4]
+        names.append(name)
+        outs.append('log/out.%s.it%d'%(name, iterc))
+        errs.append('log/err.%s.it%d'%(name, iterc))
+    # delete the old files
+    for fnm in outs + errs:
+        try:
+            os.remove(fnm)
+        except OSError:
+            pass
+    # submit jobs
+    for i in range(num):
+        cmd = 'bsub -J %s <%s -o %s -e %s >>log/lsf.log'%(names[i], jobc[i], outs[i], errs[i])
         print(cmd)
         p = os.system(cmd)
         if p != 0:
             raise ValueError('fails to submit job: '+job)
     # whether to finish
-    num = len(outs)
     flag = 1
     while flag == 1:
-        numo, nume = 0, 0
-        for i in range(num):
-            if os.path.exists(outs[i]):
-                numo += 1
-            if os.path.exists(errs[i]):
-                nume += 1
+        numo = sum([os.path.exists(fnm) for fnm in outs])
+        nume = sum([os.path.exists(fnm) for fnm in errs])
         #check the error files
-        if numo == nume == num:
-            for ferr in errs:
-                if os.path.getsize(ferr) != 0:
-                    raise ValueError('!!! errors: ' + ferr + ' !!!')
-            flag = 0 # finished
+        if numo == nume == num: # files .out and .err exist
+            errsize = sum([os.path.getsize(fnm) for fnm in errs])
+            if errsize == 0:
+                flag = 0 # finished
+            else:
+                flag = -1 # error happens
+                raise ValueError('Error happens: ' + errs[0])
         else:
-            print("*** waiting %s ***"%name)
+            print("*** waiting %s ***"%names[0])
             time.sleep(30)
             flag = 1 # not finished
+    #return flag
 
 #INPut paras
 fdir        =sys.argv[1] # optim
@@ -196,7 +203,6 @@ for iterc in range(iter_start, iter_end+1, 1):
         '${py3} ' + os.path.join('${fwiroot}', 'sum_up_misfit.py')+' '+fdir+' all',
         '${py3} ' + os.path.join('${fwiroot}', 'sum_up_gradient.py')+' '+fdir,
         '${py3} ' + os.path.join('${fwiroot}', 'process_gradient.py')+' '+fdir,
-        '${py3} ' + os.path.join('${fwiroot}', 'scale_gradient.py')+' '+fdir
         ]
     jobnm = os.path.join(dirjob, 'sum_misfit_grad.lsf')
     generate_cmdfile(jobnm, subjob, queue_single, 1, wtime, headers, 0)
@@ -224,7 +230,7 @@ for iterc in range(iter_start, iter_end+1, 1):
     if submit == 1: #run the tasks
         run_current_step([jobnm, ], iterc)
     jobnm = os.path.join(dirjob, 'descent2.lsf')
-    generate_cmdfile(jobnm, [subjob[2], subjob[1]], queue_single, 1, '8:00', headers, 0)
+    generate_cmdfile(jobnm, [subjob[2], subjob[1]], queue_single, 1, '20:00', headers, 0)
     while eval(open(foptim).read())['conv_CG'] != 1:
         print('*** run inner loop ***')
         if submit == 1: #run the tasks

@@ -42,7 +42,7 @@ if fc > 0:
         seis=obspy.read(fin[i])
         delta=seis[0].stats.delta
         ntr=seis.count()
-        #Apply a zero-phase lowpass to the trace
+        # lowpass filter
         for itr in range(ntr):
             seis[itr].data[:]=flt.lowpass(seis[itr].data,fc,1.0/delta, order, zerophase=zero_phase)
         seis.write(fout[i])

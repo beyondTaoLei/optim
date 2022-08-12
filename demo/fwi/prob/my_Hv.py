@@ -3,45 +3,50 @@ import os
 import sys
 import glob
 import time
-import subprocess
 import numpy as np
 
 def run_current_step(jobc, iterc):
     """
     submit the current task.
     """
-    outs, errs = [], []
-    for job in jobc:
-        name = job.split('/')[-1][:-4]
-        out = 'log/out.%s.it%d'%(name, iterc)
-        err = 'log/err.%s.it%d'%(name, iterc)
-        outs.append(out)
-        errs.append(err)
-        cmd = 'bsub -J %s <%s -o %s -e %s >>log/lsf.log'%(name, job, out, err)
+    num = len(jobc)
+    names, outs, errs = [], [], []
+    for i in range(num):
+        name = jobc[i].split('/')[-1][:-4]
+        names.append(name)
+        outs.append('log/out.%s.it%d'%(name, iterc))
+        errs.append('log/err.%s.it%d'%(name, iterc))
+    # delete the old files
+    for fnm in outs + errs:
+        try:
+            os.remove(fnm)
+        except OSError:
+            pass
+    # submit jobs
+    for i in range(num):
+        cmd = 'bsub -J %s <%s -o %s -e %s >>log/lsf.log'%(names[i], jobc[i], outs[i], errs[i])
         print(cmd)
         p = os.system(cmd)
         if p != 0:
             raise ValueError('fails to submit job: '+job)
     # whether to finish
-    num = len(outs)
     flag = 1
     while flag == 1:
-        numo, nume = 0, 0
-        for i in range(num):
-            if os.path.exists(outs[i]):
-                numo += 1
-            if os.path.exists(errs[i]):
-                nume += 1
+        numo = sum([os.path.exists(fnm) for fnm in outs])
+        nume = sum([os.path.exists(fnm) for fnm in errs])
         #check the error files
-        if numo == nume == num:
-            for ferr in errs:
-                if os.path.getsize(ferr) != 0:
-                    raise ValueError('!!! errors: ' + ferr + ' !!!')
-            flag = 0 # finished
+        if numo == nume == num: # files .out and .err exist
+            errsize = sum([os.path.getsize(fnm) for fnm in errs])
+            if errsize == 0:
+                flag = 0 # finished
+            else:
+                flag = -1 # error happens
+                raise ValueError('Error happens: ' + errs[0])
         else:
-            print("*** waiting %s ***"%name)
+            print("*** waiting %s ***"%names[0])
             time.sleep(30)
             flag = 1 # not finished
+    #return flag
 
 def model_perturbation_deta(x, v, flag):
     #/* master node will call this function */
@@ -83,16 +88,14 @@ v = np.fromfile(fvctr, np.float32)
 MCHPR = model_perturbation_deta(x, v, 0)
 grads = []
 for i in [-1, 1]:
+    tag = 500*i+1500
     x2 = x + i * MCHPR * v
     x2.astype(np.float32).tofile(fmod)
-    # rm the log
-    for fnm in glob.glob('log/*.it%d'%(iterc+101+i)):
-        os.remove(fnm)
     # command for misfit
     jobc = glob.glob(os.path.join(dirjob, 'misfit_grad_part*.lsf'))
-    run_current_step(jobc, iterc+101+i)
+    run_current_step(jobc, tag)
     jobnm = os.path.join(dirjob, 'sum_misfit_grad.lsf')
-    run_current_step([jobnm, ], iterc+101+i)
+    run_current_step([jobnm, ], tag)
     grad = np.fromfile(fgrad, np.float32)
     grads.append(grad)
 
