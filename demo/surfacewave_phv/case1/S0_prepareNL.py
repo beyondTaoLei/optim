@@ -68,7 +68,8 @@ optim={
     'pro_sing'              :1.0E-10,                   #[IN] for singularity test
     'pro_curv'              :1.0E-10,                   #[IN] for negative curvature test (if flag_negative == 1)
     'pro_trun'              :0.5,                       #[IN] for truncation test
-    'eta'                   :0.9,                       #[IN] check the code
+    'eta'                   :0.0,                       #[IN] check the code
+    'eta_update'            :0,                         #[IN] 1: update the eta during inversion cycle; 0: not update
     'Steplength'            :'comment',
     'try_old_sl'            :1,                         #[IN] whether to use steplength from last iter.(1-yes, 0-no)
     'eps_scale'             :0.03,                      #[IN] max_m0*eps_scale as one unit to test the steplength

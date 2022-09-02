@@ -2,7 +2,7 @@
 import numpy as np
 from math import sqrt
 
-def forcing_term_TRN(optim):
+def forcing_term_TRN(grad, residual_m1, norm_grad_m1, eta):
     """
     This file contains the routine for the computation  
     of forcing term following the first formula of      
@@ -13,19 +13,21 @@ def forcing_term_TRN(optim):
     """
     
     #-----------------------------------------------------#
-    # Computation of the forcing term optim.eta following #
+    # Computation of the forcing term eta following #
     # the formula                                         #
     #-----------------------------------------------------#
-    eta_save=optim.eta  
-    optim.eisenvect[:]=optim.grad-optim.residual
-    norm_eisenvect = np.linalg.norm(optim.eisenvect)
-    optim.eta=norm_eisenvect/optim.norm_grad
+    eta_save=eta  
+    eisenvect=grad - residual_m1 #current gradient - previous residual
+    norm_eisenvect = np.linalg.norm(eisenvect)
+    eta=norm_eisenvect/norm_grad_m1
 
     #-----------------------------------------------------#
-    # Additional safeguard if optim.eta is too large      #       
+    # Additional safeguard if eta is too large      #       
     #-----------------------------------------------------#
     eta_save_power=eta_save**((1.+sqrt(5.))/2.)
     if eta_save_power>0.1:
-        optim.eta=max(optim.eta,eta_save_power)
-    if optim.eta>1.:
-        optim.eta=0.9     
+        eta=max(eta,eta_save_power)
+    if eta>1.:
+        eta=0.9
+    
+    return eta

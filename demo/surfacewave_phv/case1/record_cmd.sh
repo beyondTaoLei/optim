@@ -1,20 +1,22 @@
 conda activate disba
 # make observed data
+mydemo=/home/tao/Nutstore_Files/works/optim/demo/surfacewave_phv
+mycase=/home/tao/Nutstore_Files/works/optim/demo/surfacewave_phv/case1
 cd /home/tao/Nutstore_Files/works/optim/demo/surfacewave_phv/prj
 cp model/true/true.vp model/inv/inv.vp
 cp model/true/true.vs model/inv/inv.vs
 cp model/true/true.rho model/inv/inv.rho
-python ../S0_prepare_files.py
-python ../S0_prepare.py optim
-python ../S0_generate_data.py optim
+python ${mycase}/S0_prepare_files.py
+python ${mycase}/S0_prepare.py optim
+python ${mycase}/S0_generate_data.py optim
 
 # run tomography
 ## LSQR test
 cp model/init/init.vp model/inv/inv.vp
 cp model/init/init.vs model/inv/inv.vs
 cp model/init/init.rho model/inv/inv.rho
-python ../S0_prepare.py lsqr
-python ../S1_optim_LSQR.py lsqr 1 20
+python ${mycase}/S0_prepare.py lsqr
+python ${mycase}/S1_optim_LSQR.py lsqr 1 20
 # python ../prob/plot_L_curve.py lsqr/iter1/L_curve.dat
 # ximage n1=400 <lsqr/iter1/L_curve_12.bin cmap=hsv2&
 
@@ -22,67 +24,67 @@ python ../S1_optim_LSQR.py lsqr 1 20
 cp model/init/init.vp model/inv/inv.vp
 cp model/init/init.vs model/inv/inv.vs
 cp model/init/init.rho model/inv/inv.rho
-python ../S0_prepare.py plcg
-python ../S1_optim_PLCG.py plcg 1 20
+python ${mycase}/S0_prepare.py plcg
+python ${mycase}/S1_optim_PLCG.py plcg 1 20
 
 ## PSTD test
 cp model/init/init.vp model/inv/inv.vp
 cp model/init/init.vs model/inv/inv.vs
 cp model/init/init.rho model/inv/inv.rho
-python ../S0_prepareNL.py pstd
-python ../S1_optim_PSTD.py pstd 1 50
+python ${mycase}/S0_prepareNL.py pstd
+python ${mycase}/S1_optim_PSTD.py pstd 1 50
 
 ## PNLCG test
 cp model/init/init.vp model/inv/inv.vp
 cp model/init/init.vs model/inv/inv.vs
 cp model/init/init.rho model/inv/inv.rho
-python ../S0_prepareNL.py pnlcg
-python ../S1_optim_PNLCG.py pnlcg 1 50
+python ${mycase}/S0_prepareNL.py pnlcg
+python ${mycase}/S1_optim_PNLCG.py pnlcg 1 50
 
 ## l-BFGS test
 cp model/init/init.vp model/inv/inv.vp
 cp model/init/init.vs model/inv/inv.vs
 cp model/init/init.rho model/inv/inv.rho
-python ../S0_prepareNL.py lbfgs
-python ../S1_optim_LBFGS.py lbfgs 1 30
+python ${mycase}/S0_prepareNL.py lbfgs
+python ${mycase}/S1_optim_LBFGS.py lbfgs 1 30
 
 ## TRN test
 cp model/init/init.vp model/inv/inv.vp
 cp model/init/init.vs model/inv/inv.vs
 cp model/init/init.rho model/inv/inv.rho
-python ../S0_prepareNL.py trn
-python ../S1_optim_TRN.py trn 1 30
+python ${mycase}/S0_prepareNL.py trn
+python ${mycase}/S1_optim_TRN.py trn 1 20
 
 #phase velocity at iteration 20
 cp model/init/init.vp model/inv/inv.vp
 cp model/init/init.vs model/inv/inv.vs
 cp model/init/init.rho model/inv/inv.rho
-mpirun -np 8 python3 ../prob/forward.py lsqr
+mpirun -np 8 python3 ${mydemo}/prob/forward.py lsqr
 cp -r syn/vmap_M0.bin vmap_M0_init.bin
 
 
 cp lsqr/iter20/modg.bin model/inv/inv.vs
-mpirun -np 8 python3 ../prob/forward.py lsqr
+mpirun -np 8 python3 ${mydemo}/prob/forward.py lsqr
 cp -r syn/vmap_M0.bin vmap_M0_lsqr20.bin
 
 cp plcg/iter20/modg.bin model/inv/inv.vs
-mpirun -np 8 python3 ../prob/forward.py plcg
+mpirun -np 8 python3 ${mydemo}/prob/forward.py plcg
 cp -r syn/vmap_M0.bin vmap_M0_plcg20.bin
 
 cp pstd/iter20/modg.bin model/inv/inv.vs
-mpirun -np 8 python3 ../prob/forward.py pstd
+mpirun -np 8 python3 ${mydemo}/prob/forward.py pstd
 cp -r syn/vmap_M0.bin vmap_M0_pstd20.bin
 
 cp pnlcg/iter20/modg.bin model/inv/inv.vs
-mpirun -np 8 python3 ../prob/forward.py pnlcg
+mpirun -np 8 python3 ${mydemo}/prob/forward.py pnlcg
 cp -r syn/vmap_M0.bin vmap_M0_pnlcg20.bin
 
 cp lbfgs/iter20/modg.bin model/inv/inv.vs
-mpirun -np 8 python3 ../prob/forward.py lbfgs
+mpirun -np 8 python3 ${mydemo}/prob/forward.py lbfgs
 cp -r syn/vmap_M0.bin vmap_M0_lbfgs20.bin
 
 cp trn/iter20/modg.bin model/inv/inv.vs
-mpirun -np 8 python3 ../prob/forward.py trn
+mpirun -np 8 python3 ${mydemo}/prob/forward.py trn
 cp -r syn/vmap_M0.bin vmap_M0_trn20.bin
 
 
