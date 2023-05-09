@@ -5,7 +5,9 @@ calculates descent direction
 import os
 import sys
 import csv
+import h5py
 import numpy as np
+import pandas as pd
 from scipy import sparse
 from numpy import linalg as LA
 from scipy.sparse.linalg import lsqr
@@ -26,24 +28,48 @@ flag        =optim['modeltype']#1:smoothest, 2:flattest, 3:smallest
 numreg      =optim['numreg']
 
 # sensitivity matrix
-G = sparse.load_npz(fsensmat)
-N, M = G.shape
+idx = fsensmat.rfind('.')
+suf = fsensmat[idx:]
+if suf == '.npz':
+    G = sparse.load_npz(fsensmat)
+    N, M = G.shape
+    # data residual: b = dobs - dsyn
+    fdiff = os.path.join(fdir, 'iter'+str(iterc), 'diff.dat')
+    b = np.loadtxt(fdiff, dtype=np.float32)
+elif suf == '.h5':
+    hf = h5py.File(fsensmat, 'r')
+    G = hf['mat'][()]
+    b = hf['b'][()]
+    hf.close()
+    G = sparse.csc_matrix(G)
+    N, M = G.shape
+elif suf == '.list':
+    df = pd.read_csv(fsensmat)
+    fsensmats   =list(df['list'])
+    nums        =np.array(df['num'], np.int32)
+    nlist = len(fsensmats)
+    N = nums.sum()
+    idxs = np.hstack([np.array([0], np.int32), nums.cumsum()])
+    hf = h5py.File(fsensmats[0], 'r')
+    N1, M = hf['mat'].shape
+    hf.close()
+    G = np.zeros([N, M], np.float32)
+    b = np.zeros(N, np.float32)
+    for i in range(nlist):
+        idx1, idx2 = idxs[i], idxs[i+1]
+        hf = h5py.File(fsensmats[i], 'r')
+        G[idx1:idx2,:] = hf['mat'][()]
+        b[idx1:idx2] = hf['b'][()]
+        hf.close()
+    G = sparse.csc_matrix(G)
+
+print('finished matrix loading ...')
 
 # data weighting
-if os.path.exists(fwgtd):
-    Wd = sparse.load_npz(fwgtd)
-else:
-    Wd = sparse.eye(N)
+Wd = sparse.load_npz(fwgtd)
 
 # model weighting
-if os.path.exists(fwgtm):
-    Wm = sparse.load_npz(fwgtm)
-else:
-    Wm = sparse.eye(M)
-
-# data residual: b = dobs - dsyn
-fdiff = os.path.join(fdir, 'iter'+str(iterc), 'diff.dat')
-b = np.loadtxt(fdiff, dtype=np.float32)
+Wm = sparse.load_npz(fwgtm) # [nr, nr]
 
 # current and reference model
 fmod = os.path.join(fdir, 'iter'+str(iterc), 'mod.bin')
@@ -62,6 +88,7 @@ for i in range(numreg):
     fnm = 'regularL'+str(i+1)+'.npz'
     fLm = os.path.join(fdir, 'regular', fnm)
     Lm = sparse.load_npz(fLm)
+    print(Lm.shape, m0.shape)
     if des_type == 1:
         damphess = Lm
     else:
@@ -78,7 +105,7 @@ print("lambda0:",lambda0)
 row_list=[["idx", "lambda", "phid", "phim", "bnorm"]]
 xlhs = Wd.dot(G)
 xrhs = Wd.dot(b)
-Gext = sparse.vstack([xlhs, lambda0 * ylhs]) #[N+M, M]
+Gext = sparse.vstack([xlhs, lambda0 * ylhs]).tocsc() #[N+M, M]
 bext = np.hstack([xrhs, lambda0 * yrhs]) #[N+M]
 Result = lsqr(Gext, bext, 0.0, 1e-08, 1e-08, 10000.0, niter_inner)
 desc = Result[0]
