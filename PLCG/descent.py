@@ -176,8 +176,6 @@ fwgtm       =optim['fwgtm']
 iterc       =optim['iterc']
 niter_inner =optim['niter_inner_max']
 lambda0     =optim['lambda0'] #suggest which is not more than 1.0E18
-step        =optim['step']
-num         =optim['testmax']
 des_type    =optim['descent_type'] #1: absolute 0: rate of increase
 flag        =optim['modeltype']#1:smoothest, 2:flattest, 3:smallest
 numreg      =optim['numreg']
@@ -217,7 +215,7 @@ else:
 # regularization term
 Lms = []
 for i in range(numreg):
-    fnm = 'regularL.npz' if i==0 else 'regularL'+str(i+1)+'.npz'
+    fnm = 'regularL'+str(i+1)+'.npz'
     fLm = os.path.join(fdir, 'regular', fnm)
     Lms.append(sparse.load_npz(fLm))
 
@@ -227,60 +225,30 @@ diag1, diag2 = diag_Hess(G, Wd, Wm, Lms, m0, des_type)
 
 # solve with plcg
 print("\ntest the regularization parameter lambda\n")
-print("lambda0, step, num:",lambda0, step, num)
+print("lambda0:",lambda0)
 row_list=[["idx", "lambda", "phid", "phim", "bnorm"]]
 
-for i in range(num):
-    mu = lambda0 * lambda0
+mu = lambda0 * lambda0
+# preconditional term
+if percond == 1: #update P
+    P[:] = diag1 + mu * diag2
+    #P2 = np.sort(P[P>0.0], kind='quicksort') #should be careful for quicksort method
+    #P = P + P2[int(M*0.03)]
     
-    # preconditional term
-    if percond == 1: #update P
-        P[:] = diag1 + mu * diag2
-        #P2 = np.sort(P[P>0.0], kind='quicksort') #should be careful for quicksort method
-        #P = P + P2[int(M*0.03)]
-        
-    desc = PLCG(G, Wd, Wm, Lms, mu, P, b, m0, mref, des_type, niter_inner, tol)
-    phid = func_phid(Wd, G, b, desc)
-    phim = func_phim(Wm, Lms, m0, desc, mref, des_type)
-    bnorm = LA.norm(b)
-    row_list.append(list([i, format(lambda0,'12.4e'), format(phid,'12.4e'), 
-                          format(phim,'12.4e'), format(bnorm,'12.4e')]))
-    print('%d %12.4e %12.4e %12.4e %12.4e'%(i, lambda0, phid, phim, bnorm))
-    fout=os.path.join(fdir, 'iter'+str(iterc), 'L_curve.dat')
-    with open(fout, 'w', newline='') as fp1:
-        writer = csv.writer(fp1)
-        writer.writerows(row_list)
-    fp1.close()
-    fdesc=os.path.join(fdir, 'iter'+str(iterc), 'L_curve_'+str(i)+'.bin')
-    desc.astype(np.float32).tofile(fdesc)
-    #for next test
-    lambda0=lambda0/step
-    
-# save descent direction
-if num == 1:
-    fdesc =os.path.join(fdir, 'iter'+str(iterc), 'desc.bin')
-    desc.astype(np.float32).tofile(fdesc)
-
-
-#########################
-#des_type = 1
-#des_type = 0
-#m0 = np.array([0.0,0.0,0.0])
-
-#mref = 0.0*m0
-#G = sparse.csr_matrix([[1.0, 2.0, 1.0],[2.0, 3.0, 1.0],[5.0,1.0,4.0]])
-#dobs = np.array([8.0,11.0, 19.0])
-##b=dobs - dsyn
-#b = dobs
-#P = np.ones([3,])
-#Wm = sparse.eye(3)
-#Wd = sparse.eye(3)
-#lambda0 = 0.0
-#solution = PLCG(G, Wd, Wm, lambda0, P, b, m0, mref, des_type)
-
-###################
-
-
+desc = PLCG(G, Wd, Wm, Lms, mu, P, b, m0, mref, des_type, niter_inner, tol)
+phid = func_phid(Wd, G, b, desc)
+phim = func_phim(Wm, Lms, m0, desc, mref, des_type)
+bnorm = LA.norm(b)
+row_list.append(list([0, format(lambda0,'12.4e'), format(phid,'12.4e'), 
+                        format(phim,'12.4e'), format(bnorm,'12.4e')]))
+print('%d %12.4e %12.4e %12.4e %12.4e'%(0, lambda0, phid, phim, bnorm))
+fout=os.path.join(fdir, 'iter'+str(iterc), 'L_curve.dat')
+with open(fout, 'w', newline='') as fp1:
+    writer = csv.writer(fp1)
+    writer.writerows(row_list)
+fp1.close()
+fdesc=os.path.join(fdir, 'iter'+str(iterc), 'desc.bin')
+desc.astype(np.float32).tofile(fdesc)
 
 #print("Finished...", __file__)
     

@@ -16,7 +16,6 @@ fmodfd  =optim['fmodfd']
 fmod    =optim['fmod']
 fmodref =optim['fmodref']
 fdiff   =optim['fdiff']
-fcost   =optim['fcost']
 flag    =optim['modeltype']#1:smoothest, 2:flattest, 3:smallest
 fiter   ='iter'+str(iterc)
 
@@ -25,7 +24,6 @@ os.makedirs(os.path.join(fdir, fiter),exist_ok=True)
 copyfile(fmodfd,os.path.join(fdir, fiter, 'modg.bin'))
 copyfile(fmod,  os.path.join(fdir, fiter, 'mod.bin'))
 copyfile(fdiff, os.path.join(fdir, fiter, 'diff.dat'))
-copyfile(fcost, os.path.join(fdir, fiter, 'fcost.dat'))
 if flag==3:
     copyfile(fmodref,  os.path.join(fdir, fiter, 'ref.bin'))
 
