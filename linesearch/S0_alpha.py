@@ -32,17 +32,13 @@ flag =angle_restart(grad, desc)
 if flag==1:
     desc =-grad
     desc.tofile(fdesc)
-
-#if try_old_sl==1:
-    #if os.path.exists(fstep_estim):
-        #sl_paras_old = eval(open(fstep_estim).read())
-        #alphap      =sl_paras_old['optim']
-        ##alpha_factor=sl_paras_old['alpha_factor']
-    #else:
-        #alphap=1.0
-        ##alpha_factor=eps_scale*max_m0/np.amax(np.fabs(desc))
-#else:
-    #alphap=1.0
+    #reset iter0, special for l-BFGS
+    print("reset iter0 at %d"%iterc)
+    paras['iter0'] = iterc
+    fout =open(foptim,'w')
+    fout.write(json.dumps(paras,indent=4))
+    fout.close()
+    
 if try_old_sl==1:
     if iterc>iter0:
         print("use previous step length")
@@ -79,7 +75,6 @@ sl_paras={
 alpha=sl_paras['alpha1']*sl_paras['alpha_factor']
 mod =mod+desc*alpha
 mod.astype(np.float32).tofile(fmodo)
-#print('S0',mod)
 
 fout = open(fstep_estim,'w')
 fout.write(json.dumps(sl_paras,indent=4))

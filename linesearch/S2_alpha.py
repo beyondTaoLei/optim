@@ -37,7 +37,6 @@ if mod_limits==1:
     print("check the model limits...")
     mod=np.clip(mod, mod_lb, mod_ub)
 mod.astype(np.float32).tofile(fmodo)
-#print('S2',mod)
 
 fout = open(fstep_estim,'w')
 fout.write(json.dumps(sl_paras,indent=4))
@@ -45,7 +44,5 @@ fout.close()
 copyfile(fstep_estim,  os.path.join(fdir, 'iter'+str(iterc),'step.json'))
 #debug
 print('[%7.4f %7.4f %7.4f]'%(misf[0],misf[1],misf[2]), '[%7.4f %7.4f %7.4f] %7.4f'%(epst[0],epst[1],epst[2], sl_paras['optim']))
-#print("eps_scale,max_m0,max_desc,alpha_factor alpha*eps_scale",sl_paras['eps_scale'],\
-    #sl_paras['max_m0'], np.amax(np.fabs(desc)),sl_paras['alpha_factor'],sl_paras['optim']*sl_paras['eps_scale'])
 
 #print("Finished...", __file__)

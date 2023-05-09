@@ -29,7 +29,6 @@ else:
 alpha=sl_paras['alpha2']*sl_paras['alpha_factor']
 mod =mod+desc*alpha
 mod.astype(np.float32).tofile(fmodo)
-#print('S1',mod)
 
 fout = open(fstep_estim,'w')
 fout.write(json.dumps(sl_paras,indent=4))
