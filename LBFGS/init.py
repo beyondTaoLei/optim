@@ -26,8 +26,8 @@ copyfile(fgrad, os.path.join(fdir, fiter, 'grad.bin'))
 
 #update work infomation
 optim['iterc'] =iterc
-if iter0==iterc: #special for l-BFGS
-    optim['cpt_lbfgs'] =0
+#if iter0==iterc: #special for l-BFGS
+    #optim['cpt_lbfgs'] =0
 fout =open(foptim,'w')
 fout.write(json.dumps(optim,indent=4))
 fout.close()

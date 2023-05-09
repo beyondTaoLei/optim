@@ -74,7 +74,7 @@ optim = eval(open(foptim).read())
 fmod        =optim['fmod']
 iter0       =optim['iter0']
 iterc       =optim['iterc']
-cpt_lbfgs   =optim['cpt_lbfgs']
+#cpt_lbfgs   =optim['cpt_lbfgs']
 l           =optim['l']
 
 #read gradient and model
@@ -108,10 +108,10 @@ else: #can employe the previous info.;
 #save descent
 descent.tofile(os.path.join(fdir, 'iter'+str(iterc), 'desc.bin'))
 
-#update work infomation
-optim['cpt_lbfgs']=cpt_lbfgs
-fout = open(foptim,'w')
-fout.write(json.dumps(optim,indent=4))
-fout.close()
+##update work infomation
+#optim['cpt_lbfgs']=cpt_lbfgs
+#fout = open(foptim,'w')
+#fout.write(json.dumps(optim,indent=4))
+#fout.close()
 
 #print("Finished...", __file__)
