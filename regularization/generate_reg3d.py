@@ -4,7 +4,7 @@ import sys
 import json
 import numpy as np
 from scipy import sparse
-from util import opt_identity, opt_deriv, opt_laplace
+from util import opt_identity3d, opt_deriv3d, opt_laplace3d
 
 #Input paras
 fdir        =sys.argv[1] #optim
@@ -34,7 +34,7 @@ else:
     raise ValueError("\nSo far we haven't implemented for multiple damping types\n")
     
 # output
-foutL = os.path.join(fdir, 'regular', 'regularL.npz')
+foutL = os.path.join(fdir, 'regular', 'regularL1.npz')
 sparse.save_npz(foutL, Lm)
 if flag ==2:
     foutL = os.path.join(fdir, 'regular', 'regularL2.npz')
