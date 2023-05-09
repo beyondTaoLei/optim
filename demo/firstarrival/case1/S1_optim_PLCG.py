@@ -144,8 +144,7 @@ for iterc in range(iter_start, iter_end+1, 1):
         run_current_step([jobnm, ])
     
     # update the model
-    subjob = ['${py3} ' + os.path.join('${fdroot}', 'select_Lcurve_result.py')+' '+fdir + ' '+str(lambda_idx),
-              '${py3} ' + os.path.join('${fdroot}', 'update_model.py'+ ' '+ fdir)]
+    subjob = ['${py3} ' + os.path.join('${fdroot}', 'update_model.py'+ ' '+ fdir), ]
     jobnm = os.path.join(dirjob, 'update_model.bash')
     generate_cmdfile(jobnm, subjob, headers, 0)
     if submit == 1: #run the tasks

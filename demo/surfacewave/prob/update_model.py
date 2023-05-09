@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """
-calculates descent direction
+update model with steps:
+1. interpolate descent direction from inv. grids into input model grids;
+2. smooth descent direction;
+3. update model in input model grid.
 """
 import os
 import sys

@@ -63,29 +63,30 @@ optim={
     'inc3'                  :1,                     #[IN] X- grid sampling for gradient
     'inc2'                  :1,                     #[IN] Y- grid sampling for gradient
     'inc1'                  :1,                     #[IN] Z- grid sampling for gradient
-    'fcost'                 :'fdio/comm/misfit.dat',#[OUT] the misfit at point fmod
-    'fgrad'                 :'fdio/comm/grad.bin',  #[OUT] the gradient at point fmod
-    'fhess'                 :'fdio/comm/hess.bin',  #[OUT] the Hessian vector product at point [fmod, fvctr]
-    'fvctr'                 :'fdio/comm/vctr.bin',  #[OUT] the vector pk in LCG algorithm
     'taper'                 :1,                     #[IN] gradient taper, 1: with, 0: without
     'ftaper'                :'taper/taper_all.bin', #[IN] gradient taper file
     'smooth_size'           :5,                     #[IN] median filter window for gradient direction, in odd number (5, 7, ...)
     'Optimization'          :'comment',
+    'fcost'                 :'fdio/comm/misfit.dat',#[OUT] the misfit at point fmod
+    'fgrad'                 :'fdio/comm/grad.bin',  #[OUT] the gradient at point fmod
+    'fhess'                 :'fdio/comm/hess.bin',  #[OUT] the Hessian vector product at point [fmod, fvctr]
+    'fvctr'                 :'fdio/comm/vctr.bin',  #[OUT] the vector pk in LCG algorithm
     'PNLCG'                 :'comment',
     'powell'                :1,                     #[IN] wheter to check Powell restart condition(1-yes, 0-no)
     'LBFGS'                 :'comment',
     'l'                     :5,                     #[IN] the maximum storing number of the pairs {sk,yk}(~3-7)
     'TRN'                   :'comment',
-    'conv_CG'               :0,                     #[IN] initial status
+    'conv_CG'               :0,                     #[IN] initial status for debug, set to 0
     'niter_max_CG'          :12,                    #[IN] maximum number of inner conjugate gradient loop
-    'flag_singularity'      :1,                     #[IN] singularity test, please check the code
-    'flag_negative'         :2,                     #[IN] negative curvature test, please check the code
-    'flag_truncation'       :1,                     #[IN] truncation test, please check the code
-    'flag_min_res'          :1,                     #[IN] record minimum residual when applying the inner CG agrithm
-    'pro_sing'              :1.0E-10,               #[IN] for singularity test
-    'pro_curv'              :1.0E-10,               #[IN] for negative curvature test (if flag_negative == 1)
-    'pro_trun'              :0.5,                   #[IN] for truncation test
-    'eta'                   :0.9,                   #[IN] check the code
+    'flag_singularity'      :1,                     #[IN] 1: singularity test; 0: no test
+    'flag_negative'         :2,                     #[IN] 1: negative curvature test; 2: strong negative curvature test; 0: no test
+    'flag_truncation'       :1,                     #[IN] 1: truncation test based on residuals; 2: test based on parabolic function, not work now; 0: no test
+    'flag_min_res'          :1,                     #[IN] 1: record minimum residual when applying the inner CG agrithm; 0: no record
+    'pro_sing'              :1.0E-10,               #[IN] threshold \varsigma for singularity test
+    'pro_curv'              :1.0E-10,               #[IN] threshold \delta for negative curvature test (flag_negative = 1)
+    'pro_trun'              :0.5,                   #[IN] threshold c_q for truncation test
+    'eta'                   :0.0,                   #[IN] if ||residuals|| <= eta * ||gradient||, skip the inner CG loop
+    'eta_update'            :0,                     #[IN] 1: update the eta during inversion cycle; 0: not update
     'Steplength'            :'comment',
     'try_old_sl'            :1,                     #[IN] whether to use steplength from last iter.(1-yes, 0-no)
     'eps_scale'             :0.002,                 #[IN] max_m0*eps_scale as one unit to test the steplength

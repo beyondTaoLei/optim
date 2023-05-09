@@ -81,7 +81,7 @@ ${mpirunpy} -np 10 python ${mydemo}/prob/filtering.py lbfgs list/proc_wav.csv ${
 ${mpirunpy} -np 10 python ${mydemo}/prob/filtering.py lbfgs list/proc_data.csv ${fc}
 python ${mycase}/S1_optim_LBFGS.py lbfgs 1 30
 
-#2nd stage
+#2nd stage #cp trn/iter31/mod.bin model/inv/inv.vp
 python ${mycase}/S0_prepare_fc5.py lbfgs
 fc=5.0
 ${mpirunpy} -np 10 python ${mydemo}/prob/filtering.py lbfgs list/proc_wav.csv ${fc}

@@ -1,66 +1,63 @@
 #!/usr/bin/env python3
+"""
+calculates sensitivity kernels only at stations, not for whole input model
+"""
 import os
 import sys
 import numpy as np
 import pandas as pd
-from netCDF4 import Dataset
+from mpi4py import MPI
 sys.path.append('/home/tao/seis_software/ATT_surfwaves/forward')
 from dpcxx import GradientEval
 
-def fnm_comm(mode, per):
-    return 'M%1d_T%.2f'%(mode, per)
+#initialize MPI
+comm=MPI.COMM_WORLD
+NP = comm.Get_size()
+MYID = comm.Get_rank()
 
 #input paras
 fdir        =sys.argv[1]
 mode        =int(sys.argv[2]) #0, 1
 foptim      =os.path.join(fdir,'optim.json')
 optim       =eval(open(foptim).read())
-wavetype    =optim['wavetype']
+fmod        =optim['fmodfd']
+fperiods    =optim['fperiods']
 wdir        =optim['wdir']
-fmod        =optim['fmod']
-nz          =optim['nz']
-dz          =optim['dz']
+wavetype    =optim['wavetype']
+nper        =optim['nper']
+ntraces     =optim['ntraces']
+n1          =optim['n1g']
+d1          =optim['d1g']
 lastele     =3
-# vs perturbation (km/s): avoid the homogeneous media
-if 'pertb' in optim.keys():
-    pertb = optim['pertb']
-else:
-    pertb = 0.001
 
-# read phase velocity
-fnm = os.path.join(wdir, 'vmap_M%1d.nc'%mode)
-ncin = Dataset(fnm)
-nx = ncin.dimensions['I'].size
-nper = ncin.dimensions['K'].size
-coordx = ncin.variables['coordx'][:,:].data
-period = ncin.variables['period'][:,:].data
-phvel = ncin.variables['vel'][:,:].data
-ncin.close()
-periods = period[0, :]
-coordx1d = coordx[:,0]
+# interpretation
+df = pd.read_csv(fperiods)
+periods = np.array(df['T0'])
 freqs = 1.0/periods
 
+# read phase velocity
+fnm = os.path.join(wdir, 'part', 'vmap_M%1d_id%02d.bin'%(mode, MYID))
+fsize=os.path.getsize(fnm)
+if fsize%(4*nper)!=0: #sizeof(float)
+    raise ValueError("Check the size of file: " + fnm)
+mynum = fsize//(4*nper)
+phvel = np.fromfile(fnm, np.float32).reshape([mynum, nper])
+phvel[:] /= 1000.0 #km/s
+
 # read model
-pertbs = (-1.0)**np.arange(nz)*pertb
-vp2d = np.fromfile(fmod[:-3]+'.vp', dtype=np.float32).reshape([nx, nz])
-vs2d = np.fromfile(fmod[:-3]+'.vs', dtype=np.float32).reshape([nx, nz])
-rho2d = np.fromfile(fmod[:-3]+'.rho', dtype=np.float32).reshape([nx, nz])
-vp2d /=1000.0
-vs2d /=1000.0
-rho2d /=1000.0
-vs2d += np.tile(pertbs,[nx, 1])
+fnm = os.path.join(wdir, 'part', 'mod_id%02d.bin'%MYID)
+modloc = np.fromfile(fnm, np.float32).reshape([3, mynum, n1])
+model = np.zeros([n1, 5])
+model[:,0] = np.arange(n1) + 1.0
+coordz1d = np.arange(n1)*d1
+model[:,1] = coordz1d/1000.0 #'kilometers'
 
 # run kernel generation
-phvel[:] /= 1000.0 #km/s
-model = np.zeros([nz, 5])
-model[:,0] = np.arange(nz) + 1.0
-coordz1d = np.arange(nz)*dz
-model[:,1] = coordz1d/1000.0 #'kilometers'
-kernels = np.zeros([nper, nx, nz], np.float32)
-for i in range(nx):
-    model[:,2] = rho2d[i,:]
-    model[:,3] = vs2d[i,:]
-    model[:,4] = vp2d[i,:]
+kernels = np.zeros([nper, mynum, n1], np.float32)
+for i in range(mynum):
+    model[:,2] = modloc[2,i,:] #rho
+    model[:,3] = modloc[1,i,:] #vs
+    model[:,4] = modloc[0,i,:] #vp
     cs = phvel[i, :]
     gradEval = GradientEval(model, wavetype)
     for f1, c1 in zip(freqs, cs):
@@ -72,30 +69,28 @@ for i in range(nx):
 
 # save kernels
 for iper in range(nper):
-    ker=kernels[iper, :, :]
-    where_are_NaNs=np.isnan(ker)
-    ker[where_are_NaNs] = 0.0 #unknown error
-    count=np.sum(where_are_NaNs)
-    ############################
-    # open a netCDF file to write
-    fname='ker_'+fnm_comm(mode, periods[iper])+'.nc'
-    fout=os.path.join(wdir, fname)
-    ncfile = Dataset(fout, 'w', format='NETCDF3_CLASSIC')#'NETCDF4'
-    #create dimensions
-    ncfile.createDimension('I', nx)
-    ncfile.createDimension('K', nz)
-    ncfile.typevel='phv'
-    #define variables
-    kervs2d   = ncfile.createVariable('vs','f4',('I','K'))
-    coordxout = ncfile.createVariable('coordx','f4',('I','K'))
-    coordzout = ncfile.createVariable('coordz','f4',('I','K'))
-    #set values
-    kervs2d[:]   =ker
-    coordxout[:] =np.tile(coordx1d, (nz,1)).T
-    coordzout[:] =np.tile(coordz1d, (nx,1))
-    #close ncfile 
-    ncfile.close()
-    print('NaN percentage: %s %.6f'%(fname, count/(nx*nz)))
-    ############################
+    fname='ker_M%1d_T%.2f_id%02d.bin'%(mode, periods[iper], MYID)
+    fout=os.path.join(wdir, 'part', fname)
+    kernels[iper, :, :].tofile(fout)
 
-print("Finished...", __file__)
+comm.Barrier()
+#gather kernel
+for iper in range(nper):
+    if iper%NP==MYID:
+        fname='ker_M%1d_T%.2f.bin'%(mode, periods[iper])
+        fout=os.path.join(wdir, fname)
+        with open(fout, 'wb') as fp:
+            count=0
+            for id1 in range(NP):
+                fker0='ker_M%1d_T%.2f_id%02d.bin'%(mode, periods[iper], id1)
+                fker=os.path.join(wdir, 'part', fker0)
+                part=np.fromfile(fker, np.float32)
+                where_are_NaNs=np.isnan(part)
+                part[where_are_NaNs] = 0.0 #unknown error
+                part.tofile(fp)
+                count+=np.sum(where_are_NaNs)
+            if count > 0:
+                print('NaN percentage: %s %.6f'%(fname, count/(ntraces*n1)))
+
+if MYID == 0:
+    print("Finished...", __file__)

@@ -32,27 +32,28 @@ optim={
     'wavetype'              :'rayleigh',                #[IN] 'love' or 'rayleigh'
     'maxmode'               :0,                         #[IN] code, fund. 0, first high mode 1
     'wdir'                  :'syn',                     #[IN] work directory for synthetic data
-    'n3g'                   :1,                         #[IN] X- grid number of forward modeling
-    'n2g'                   :1300,                      #[IN] Y- grid number of forward modeling 
-    'n1g'                   :400,                       #[IN] Z- grid number of forward modeling
-    'o3g'                   :0.0,                       #[IN] X- original coordinate of model in meter
-    'o2g'                   :0.0,                       #[IN] Y- original coordinate of model in meter
-    'o1g'                   :0.0,                       #[IN] Z- original coordinate of model in meter
-    'd3g'                   :500.0,                     #[IN] X- spacing in meter
-    'd2g'                   :500.0,                     #[IN] Y- spacing in meter
-    'd1g'                   :500.0,                     #[IN] Z- spacing in meter
+    'n3g'                   :1,                         #[IN] X- grid number of input model
+    'n2g'                   :1300,                      #[IN] Y- grid number of input model
+    'n1g'                   :400,                       #[IN] Z- grid number of input model
+    'o3g'                   :0.0,                       #[IN] X- original coordinate of input model in meter
+    'o2g'                   :0.0,                       #[IN] Y- original coordinate of input model in meter
+    'o1g'                   :0.0,                       #[IN] Z- original coordinate of input model in meter
+    'd3g'                   :500.0,                     #[IN] X- spacing of input model in meter
+    'd2g'                   :500.0,                     #[IN] Y- spacing of input model in meter
+    'd1g'                   :500.0,                     #[IN] Z- spacing of input model in meter
     'Diff sensmat part'     :'comment',
-    'inc3'                  :1,                         #[IN] X- grid sampling for sensitivity matrix
+    'odir'                  :'obs',                     #[IN] work directory for observed data
+    'inc3'                  :1,                         #[IN] X- grid sampling for sensitivity matrix, kernels are mapped into grids [::inc3, ::inc2,::inc1]
     'inc2'                  :10,                        #[IN] Y- grid sampling for sensitivity matrix
     'inc1'                  :1,                         #[IN] Z- grid sampling for sensitivity matrix
-    'odir'                  :'obs',                     #[IN] work directory for observed data
+    'Optimization'          :'comment',
     'fcost'                 :'list/fcost.dat',          #[OUT] the misfit at point fmod 
     'fdiff'                 :'list/diff.dat',           #[OUT] differnece between observed and synthetic data for each pairs
     'fsensmat'              :'list/sensmat.npz',        #[OUT] sensitivity matrix [G]
-    'Descent part lsqr'     :'comment',
+    'Descent lsqr or plcg'  :'comment',
     'modeltype'             :3,                         #[IN] 1:smoothest, 2:flattest, 3:smallest perturbation
     'descent_type'          :1,                         #[IN] desecent with format of absolute value(1), percent vaule(2)
-    'fmodfdref'             :'model/inv/ref.vs',        #[IN] reference model in forward modelling gird
+    'fmodfdref'             :'model/inv/ref.vs',        #[IN] reference model in input model grid
     'fmod'                  :'model/inv/inv_tomo.vs',   #[OUT] current model [x] for tomography inversion
     'fmodref'               :'model/inv/ref_tomo.vs',   #[OUT] reference model mref, just define the file name
     'fwgtd'                 :'list/wgtd.npz',           #[IN] data weighting
@@ -62,7 +63,7 @@ optim={
     'lambda0'               :100.0,                     #[IN] initial lambda for L-curve test, suggest which is not more than 1.0E18
     'step'                  :4.0,                       #[IN] the ratio between the neighbor damping factor
     'testmax'               :20,                        #[IN] the maximum test times
-    'Update part'           :'comment',
+    'steplength'            :'comment',
     'eps_scale'             :0.03,                      #[IN] step length in proportion
     'smooth_size'           :'0.0:30000.0:9000.0',      #[IN] smooth size for descent direction, in meter (such as, 6*d3g:6*d2g:6*d1g)
     'mod_limits'            :1,                         #[IN] 1: check the bound of model value;0 no limit for model value

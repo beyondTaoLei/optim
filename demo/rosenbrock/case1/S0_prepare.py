@@ -32,15 +32,29 @@ a.tofile('FD/mod.bin')
 optim={
     'optimroot'         :'/home/tao/Nutstore_Files/works/optim', #[IN] software path
     'demoroot'          :'/home/tao/Nutstore_Files/works/optim/demo/rosenbrock', #[IN] current demo path
+    'Optimization'      :'comment',
     'fmod'              :'FD/mod.bin',      #[IN] the current model in work memory
     'fcost'             :'FD/misfit.dat',   #[OUT] the misfit at point fmod
     'fgrad'             :'FD/grad.bin',     #[OUT] the gradient at point fmod
     'fhess'             :'FD/hess.bin',     #[OUT] the Hessian vector product at point [fmod, fvctr]
     'fvctr'             :'FD/vctr.bin',     #[OUT] the vector pk in LCG algorithm
-    'iter0'             :1,                 #[IN] the initial iteration at current inversion stage/phase
-    'niter_max'         :200,               #[IN] maximum iterations, for future design
-    'conv'              :0.1,               #[IN] PRO, for future design
-    'steplength'    :'comment',
+    'PNLCG'             :'comment',
+    'powell'            :0,                 #[IN] wheter to check Powell restart condition(1-yes, 0-no)
+    'l-BFGS'            :'comment',
+    'l'                 :5,                 #[IN] the maximum storing number of the pairs {sk,yk}(~3-7)
+    'TN'                :'comment',
+    'conv_CG'           :0,                 #[IN] initial status for debug, set to 0
+    'niter_max_CG'      :12,                #[IN] maximum number of inner conjugate gradient loop
+    'flag_singularity'  :1,                 #[IN] 1: singularity test; 0: no test
+    'flag_negative'     :2,                 #[IN] 1: negative curvature test; 2: strong negative curvature test; 0: no test
+    'flag_truncation'   :1,                 #[IN] 1: truncation test based on residuals; 2: test based on parabolic function, not work now; 0: no test
+    'flag_min_res'      :1,                 #[IN] 1: record minimum residual when applying the inner CG agrithm; 0: no record
+    'pro_sing'          :1.0E-10,           #[IN] threshold \varsigma for singularity test
+    'pro_curv'          :1.0E-10,           #[IN] threshold \delta for negative curvature test (flag_negative = 1)
+    'pro_trun'          :0.5,               #[IN] threshold c_q for truncation test
+    'eta'               :0.9,               #[IN] if ||residuals|| <= eta * ||gradient||, skip the inner CG loop
+    'eta_update'        :0,                 #[IN] 1: update the eta during inversion cycle; 0: not update
+    'steplength'        :'comment',
     'try_old_sl'        :1,                 #[IN] whether to use steplength from last iter.(1-yes, 0-no)
     'eps_scale'         :0.1,               #[IN] max_m0*eps_scale as one unit to test the steplength
     'max_m0'            :0.25,              #[IN] the maximum of initial model
@@ -49,20 +63,9 @@ optim={
     'mod_limits'        :0,                 #[IN] 1: check the bound of model value;0 no limit for model value
     'mod_lb'            :1000,              #[IN] lower limit of model value
     'mod_ub'            :5000,              #[IN] upper limit of model value
-    'PNLCG'         :'comment',
-    'powell'            :0,                 #[IN] wheter to check Powell restart condition(1-yes, 0-no)
-    'l-BFGS'        :'comment',
-    'l'                 :5,                 #[IN] the maximum storing number of the pairs {sk,yk}(~3-7)
-    'TN'            :'comment',     
-    'niter_max_CG'      :12,                #[IN] maximum number of inner conjugate gradient loop
-    'flag_singularity'  :1,                 #[IN] singularity test, please check the code
-    'flag_negative'     :2,                 #[IN] negative curvature test, please check the code
-    'flag_truncation'   :1,                 #[IN] truncation test, please check the code
-    'flag_min_res'      :1,                 #[IN] record minimum residual when applying the inner CG agrithm
-    'pro_sing'          :1.0E-10,           #[IN] for singularity test
-    'pro_curv'          :1.0E-10,           #[IN] for negative curvature test (if flag_negative == 1)
-    'pro_trun'          :0.5,               #[IN] for truncation test
-    'eta'               :0.9,               #[IN] check the code
+    'Inversion loop'    :'comment',
+    'iter0'             :1,                 #[IN] the initial iteration at current inversion stage/phase
+    'niter_max'         :200,               #[IN] maximum iterations, for future design
 }
 mod = np.fromfile(optim['fmod'], np.float32)
 optim['n'] = mod.shape[0] #only for TRN now

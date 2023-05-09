@@ -3,101 +3,89 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-from netCDF4 import Dataset
+from scipy import sparse
 from numpy import linalg as LA
-from scipy.ndimage.filters import gaussian_filter
-from util import taper_cosine
+from scipy.interpolate import griddata
+from scipy.ndimage import gaussian_filter
 
 #Input paras
 fdir        =sys.argv[1]
 foptim      =os.path.join(fdir,'optim.json')
 optim       =eval(open(foptim).read())
 wdir        =optim['wdir']
+odir        =optim['odir']
+fperiods    =optim['fperiods']
+fcmp        =optim['fcmp']
 fgrad       =optim['fgrad']
-fobstime    =optim['fobstime']
-nx          =optim['nx']
-nz          =optim['nz']
-dx          =optim['dx']
-smooth_size =optim['smooth_size']
+nper        =optim['nper']
+ntraces     =optim['ntraces']
+n3          =optim['n3g']
+n2          =optim['n2g']
+n1          =optim['n1g']
+d3          =optim['d3g']
+d2          =optim['d2g']
+d1          =optim['d1g']
+smooth_size =optim['smooth_size'] #in meter
+percond     =optim['percond']
+eps         =optim['EPSILON']
 maxmode     =optim['maxmode']
+modes       =maxmode + 1
 
 # interpretation
-modes = maxmode + 1
-fdiff = fobstime[:-4] + '_difforig.csv'
-sigma=smooth_size/np.sqrt(8)/dx
-print('sigma(xs, zs):',sigma)
+smooth_size = np.array([float(i) for i in smooth_size.split(':')])
+sigmas=smooth_size/np.array([d3, d2, d1])/np.sqrt(8)
+df = pd.read_csv(fperiods)
+periods = np.array(df['T0'])
 
-# read observed data
-df = pd.read_csv(fdiff)
-num, ncols = df.shape
-header = df.columns.to_list()
-if maxmode == 0:
-    Cs =[i for i in header if 'M0_T' in i]
-else:
-    Cs = [i for i in header if '_T' in i]
-diff = np.array(df[Cs], np.float32)
-diff = np.where(diff > -900.0, diff, 0.0)
-evxs = df['evx']
-stxs = df['stx']
-nper = len(Cs)
-
-
-# read phase velocity
-phvall = np.zeros([nx, nper])
-i0 = 0
-for mode in range(modes):
-    key='M%1d'%mode
-    pers = [float(i[4:]) for i in header if key in i] #'M0_T0.70'
-    #phase velocity
-    fnm = os.path.join(wdir, 'vmap_M%1d.nc'%mode)
-    ncin = Dataset(fnm)
-    n2 = ncin.dimensions['I'].size
-    nphase = ncin.dimensions['K'].size
-    coordx = ncin.variables['coordx'][:,:].data
-    period = ncin.variables['period'][:,:].data
-    phv    = ncin.variables['vel'][:,:].data
-    ncin.close()
-    coordx1d = coordx[:,0]
-    periods = period[0, :]
-    idx=[]
-    for per in pers:
-        i, = np.where(np.isclose(periods, per))
-        idx.append(i[0])
-    phvall[:,i0:i0+len(idx)]=phv[:, idx]
-    i0=i0+len(idx)
-
-#find station index
-Icoords = np.zeros([num, 2], np.float32)
-for idx in range(num):
-    evx, stx = evxs[idx], stxs[idx]
-    isrc, irec = (np.abs(coordx1d - evx)).argmin(), (np.abs(coordx1d - stx)).argmin()
-    Icoords[idx, :] = min(isrc, irec), max(isrc, irec)
-
-#sum up time diff. for each phase
-np.seterr(divide='ignore', invalid='ignore')
-gradfinal = np.zeros([nx,nz], np.float32)
-gradsurf = np.zeros([nx, nper], np.float32)
-taper_width=4.0 #smooth radius is 4 elements
-for iph in range(nper):
-    for i in range(num):
-        isrc, irec = Icoords[i, :]
-        taper1 = taper_cosine(1.0, nx, isrc, irec, taper_width, taper_width)
-        gradsurf[:, iph] += taper1*diff[i, iph]
-    tmp = np.where(phvall[:, iph]>0.0, -2.0*dx*gradsurf[:, iph]/phvall[:, iph]**2, 0.0)
-    gradsurf[:, iph]=gaussian_filter(tmp, sigma, mode='nearest')#sigma
-    #read kernels
-    fname = 'ker_%s.nc'%Cs[iph]
-    fin = os.path.join(wdir, fname)
-    ncin = Dataset(fin)
-    dcdm = ncin.variables['vs'][:,:].data
-    ncin.close()
-    gradfinal[:] += np.einsum('i,ij->ij',gradsurf[:, iph], dcdm)
+# read indexes of CMP
+df = pd.read_csv(fcmp)
+offsets = df['offset']
     
+b = np.zeros([modes, ntraces, nper], np.float32)
+for mode in range(modes):
+    # phase velocity
+    fnm = os.path.join(wdir, 'vmap_M%1d.bin'%mode)
+    phvsyn = np.fromfile(fnm, np.float32).reshape([ntraces, nper])
+    fnm = os.path.join(odir, 'vmap_M%1d.bin'%mode)
+    phvobs = np.fromfile(fnm, np.float32).reshape([ntraces, nper])
+    diff = np.where((phvobs>0.0) &(phvsyn>0.0), phvobs-phvsyn, -1000.0)
+    b[mode, :, :] = diff
+
+# generate the sensitivity matrix
+b[b<-900.0] = 0.0
+grad = np.zeros([ntraces, n1], np.float32)
+if percond == 1:
+    diag1 = np.zeros([ntraces, n1], np.float32)
+for mode in range(modes):
+    # read kernels
+    for iper in range(nper):
+        fname='ker_M%1d_T%.2f.bin'%(mode, periods[iper])
+        fin = os.path.join(wdir, fname)
+        dcdm = np.fromfile(fin, np.float32).reshape([ntraces, n1])
+        grad[:]+=np.einsum('i,ij->ij',-b[mode,:,iper], dcdm)
+        if percond == 1:
+            diag1[:]+= dcdm**2
+
 
 ######### preprocessing #########
-where_are_NaNs=np.isnan(gradfinal)
-gradfinal[where_are_NaNs] = 0.0 #unknown error
-gradfinal[:]=gaussian_filter(gradfinal, 4.0/np.sqrt(8), mode='nearest')#sigma
+# eliminate the outliers
+where_are_NaNs=np.isnan(grad)
+grad[where_are_NaNs] = 0.0 #unknown error
+
+# preconditioning
+if percond == 1:
+    mean1 = diag1.mean(axis=0)
+    grad[:] = grad/(diag1 +mean1.max()*eps)
+
+# interpolation (ntraces --->(n3, n2) )
+gradfinal = np.zeros([n3, n2, n1], np.float32)
+grid_3, grid_2 = np.mgrid[0:(n3-1):n3*1j, 0:(n2-1):n2*1j]
+points=np.array([offsets//n2, offsets%n2]).T
+for i in range(n1):
+    gradfinal[:, :, i] = griddata(points, grad[:, i], (grid_3, grid_2), method='nearest')
+
+# smooth
+gradfinal[:] = gaussian_filter(gradfinal, sigmas, mode='nearest')#sigma
 ##################################
 gradfinal.tofile(fgrad)
 

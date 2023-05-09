@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+"""
+calculate phase velocity errors and map the sensitivity kernel 
+of each measurement into the inversion grids, as
+1D array [n1g] ---> 1D array [n1] ---> array([n3, n2, n1]).flatten()
+
+
+"""
 import os
 import sys
 import numpy as np

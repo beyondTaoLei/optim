@@ -38,11 +38,23 @@ optim={
     "dz"                    :100.0,                 #in meter
     "nx"                    :120,
     "nz"                    :60,
+    "mx"                    :104,
+    "mz"                    :123,
+    "nxs"                   :30,
+    "nxe"                   :89,
+    "nzs"                   :0,
+    "nze"                   :59,
+    "mxs"                   :22,
+    "mxe"                   :81,
+    "mzs"                   :0,
+    "mze"                   :59,
     "pertb"                 :0.001,
     "Gradient part"         :"comment",
     'smooth_size'           :900.0,                #in meter(6*dx)
     'Optimization'          :'comment',
     'fmod'                  :'model/inv/inv.vs',    #vp/vs/rho: in m/s,m/s,kg/m3
+    'fmodref'               :'model/inv/inv_ref.vs',   #[IN] reference model mref, just define the file name
+    'fmod2'                 :'model/inv/inv.p',    # electrical resistivity
     'fcost'                 :'step1/misfit.dat',
     'fgrad'                 :'step1/grad.bin',
     'iter0'                 :1,         #the initial iteration at current inversion stage/phase

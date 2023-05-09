@@ -95,7 +95,7 @@ for iterc in range(iter_start, iter_end+1, 1):
     if submit == 1: #run the tasks
         run_current_step([jobnm, ])
     
-    # map the FD model to inversion model
+    # map the input grids to inversion grids
     subjob = ['${py3} ' + os.path.join('${fdroot}', 'media_fd2inv.py'+ ' '+ fdir), ]
     jobnm = os.path.join(dirjob, 'mediamap.bash')
     generate_cmdfile(jobnm, subjob, headers, 0)
@@ -115,10 +115,7 @@ for iterc in range(iter_start, iter_end+1, 1):
     
     # update the model
     lambda_idx = lambda_idx0+iterc//3
-    subjob =[
-            '${py3} ' + os.path.join('${fdroot}', 'select_Lcurve_result.py')+' '+fdir + ' '+str(lambda_idx),
-            '${py3} ' + os.path.join('${fdroot}', 'update_model.py'+ ' '+ fdir)
-            ]
+    subjob =['${py3} ' + os.path.join('${fdroot}', 'update_model.py'+ ' '+ fdir), ]
     jobnm = os.path.join(dirjob, 'update_model.bash')
     generate_cmdfile(jobnm, subjob, headers, 0)
     if submit == 1: #run the tasks

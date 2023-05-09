@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-calculates descent direction
+maps the input model grids into the inversion model grids, including 
+input model and reference model, as
+array [n3g, n2g, n1g] ---> array [::inc3, ::inc2, ::inc1] = [n3, n2, n1]
 """
 import os
 import sys
