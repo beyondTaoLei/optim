@@ -36,7 +36,7 @@ def run_current_step(jobc):
         print(cmd)
         p = os.system(cmd)
         if p!=0:
-            raise ValueError('fails to submit job: '+jobc)
+            raise ValueError('fails to submit job: '+job)
 
 #Input paras
 fdir        =sys.argv[1] # optim
