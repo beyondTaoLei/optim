@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-solve surface wave inversion problem with l-BFGS optimization
+solve surface wave inversion problem with Nonlinear Conjugate Gradient optimization
 Usage:
     
 """
@@ -59,6 +59,7 @@ for fnm in glob.glob('job/*'):
 for iterc in range(iter_start, iter_end+1, 1):
   os.makedirs(os.path.join(fdir, 'iter'+str(iterc)), exist_ok=True)
 
+
 """
 Inversion loop
 """
@@ -91,8 +92,8 @@ for iterc in range(iter_start, iter_end+1, 1):
   
   # calculate the descent direction
   subjob= [
-          '${py3} ' + os.path.join('${optimroot}', 'LBFGS', 'init.py')+' '+fdir+' '+str(iterc),
-          '${py3} ' + os.path.join('${optimroot}', 'LBFGS', 'descent.py')+' '+fdir
+          '${py3} ' + os.path.join('${optimroot}', 'NLCG', 'init.py')+' '+fdir+' '+str(iterc),
+          '${py3} ' + os.path.join('${optimroot}', 'NLCG', 'descent.py')+' '+fdir
           ]
   jobnm = os.path.join(dirjob, 'descent'+str(iterc)+'.bash')
   generate_cmdfile(jobnm, subjob, headers, 0)

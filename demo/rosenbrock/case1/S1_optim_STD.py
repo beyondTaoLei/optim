@@ -2,7 +2,7 @@
 """
 the inversion example for Rosenbrock problem
 Usage:
-    python ../S1_optim_PNLCG.py optim_PNLCG 1 50
+    python ../S1_optim_STD.py optim_STD 1 200
 """
 
 import os
@@ -59,8 +59,8 @@ for iterc in range(iter_start, iter_end+1, 1):
     print_info(p, '[gradient]', iterc, 1)
     
     # calculate the descent direction
-    cmd_descent = [py3+' ' + os.path.join(optimroot, 'PNLCG', 'init.py')+' '+fdir+' '+str(iterc),
-                   py3+' ' + os.path.join(optimroot, 'PNLCG', 'descent.py')+' '+fdir]
+    cmd_descent = [py3+' ' + os.path.join(optimroot, 'STD', 'init.py')+' '+fdir+' '+str(iterc),
+                   py3+' ' + os.path.join(optimroot, 'STD', 'descent.py')+' '+fdir]
     p = os.system(cmd_descent[0])
     print_info(p, '[descent: copy files]', iterc, 1)
     

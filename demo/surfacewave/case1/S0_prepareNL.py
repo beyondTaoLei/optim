@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 """
-generate initial model and input json file for Rosenbrock problem
+prepares input json file for surface wave dispersion inversion problem
 Usage:
-    python S0_prepare.py optim_PSTD
-    python S0_prepare.py optim_PNLCG
-    python S0_prepare.py optim_LBFGS
-    python S0_prepare.py optim_TRN
+    
 """
 
 import os
@@ -23,8 +20,7 @@ os.makedirs('log', exist_ok=True)
 os.makedirs('job', exist_ok=True)
 
 optim={
-    'submit'                :1,                         #[IN] 1: run inverison; 0: only generate inversion commands
-    'optimroot'             :'/home/tao/Nutstore_Files/works/optim', #[IN] software path
+    'optimroot'             :'/home/tao/seis_software/test/optim', #[IN] software path
     'Forward part'          :'comment',
     'mpiexec'               :'mpirun',
     'ncores'                :8,                         #[IN] number of cores you can apply for modelling

@@ -2,11 +2,7 @@
 """
 the inversion example for Rosenbrock problem
 Usage:
-    cp model/true/true.vp model/inv/inv.vp
-    cp model/true/true.vs model/inv/inv.vs
-    cp model/true/true.rho model/inv/inv.rho
     
-    python /home/tao/Nutstore_Files/works/seisplatform/mod_OPTIM/demo/surfacewave_phv_lsqr/S1_generate_data.py optim
 """
 import os
 import sys
@@ -46,7 +42,6 @@ def run_current_step(jobc):
 fdir        =sys.argv[1] # optim
 foptim      =os.path.join(fdir,'optim.json')
 optim       =eval(open(foptim).read())
-submit      =optim['submit']
 prjroot     =optim['prjroot']
 optimroot   =optim['optimroot']
 mpiexec     =optim['mpiexec']
@@ -56,7 +51,7 @@ odir        =optim['odir']
 py3         ='python3'
 dirjob      = 'job'
 
-fdroot = os.path.join(optimroot, 'demo', 'surfacewave_phv', 'prob')
+fdroot = os.path.join(optimroot, 'demo', 'surfacewave', 'prob')
 headers =[
     "prjroot='%s'"%prjroot,
     "fdroot='%s'"%fdroot,
@@ -80,9 +75,8 @@ subjob=['${mpiexec}' + ' -np ${NP} ${py3} ' + os.path.join('${fdroot}', 'forward
        ]
 jobnm = os.path.join(dirjob, 'fd0.bash')
 generate_cmdfile(jobnm, subjob, headers, 0)
-if submit == 1: #run the tasks
-    jobc=sorted(glob.glob(os.path.join(dirjob, 'fd0.bash')))
-    run_current_step(jobc)
+jobc=sorted(glob.glob(os.path.join(dirjob, 'fd0.bash')))
+run_current_step(jobc)
     
     ## save current information
     #print('finish optimization at iter. %4d of [%4d %4d] \n'%(iterc, iter_start, iter_end))

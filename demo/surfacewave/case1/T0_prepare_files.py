@@ -2,11 +2,7 @@
 """
 the inversion example for Rosenbrock problem
 Usage:
-    cp model/true/true.vp model/inv/inv.vp
-    cp model/true/true.vs model/inv/inv.vs
-    cp model/true/true.rho model/inv/inv.rho
     
-    python /home/tao/Nutstore_Files/works/seisplatform/mod_OPTIM/demo/surfacewave_phv_lsqr/S1_generate_data.py optim
 """
 import os
 import numpy as np
@@ -26,7 +22,7 @@ X = np.zeros_like(Y)
 Z = np.zeros_like(Y)
 
 df = pd.DataFrame()
-df['station'] = ['sz%03d'%i, for i in range(len(X))]
+df['station'] = ['sz%03d'%i for i in range(len(X))]
 df['x'] = X
 df['y'] = Y
 df['z'] = Z

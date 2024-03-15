@@ -72,7 +72,6 @@ for iterc in range(iter_start, iter_end+1, 1):
         print('*** run inner loop ***')
         p = os.system(cmd_descent[2])
         print_info(p, '[descent: inner Hv]', iterc, 2)
-        
         p = os.system(cmd_descent[1])
         print_info(p, '[descent: inner desc]', iterc, 2)
     
