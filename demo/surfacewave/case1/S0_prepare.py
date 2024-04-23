@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-generate initial model and input json file for Rosenbrock problem
+prepares input json file for surface wave dispersion inversion problem
 Usage:
     
 """
