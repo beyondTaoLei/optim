@@ -30,14 +30,16 @@ misfit0 =np.loadtxt(fmisfit).item()
 
 flag =angle_restart(grad, desc)
 if flag==1:
+    desc.tofile(fdesc[:-4]+'_old.bin')
     desc =-grad
     desc.tofile(fdesc)
-    #reset iter0, special for l-BFGS
-    print("reset iter0 at %d"%iterc)
-    paras['iter0'] = iterc
-    fout =open(foptim,'w')
-    fout.write(json.dumps(paras,indent=4))
-    fout.close()
+    # #reset iter0, special for l-BFGS
+    # print("reset iter0 at %d"%iterc)
+    # iter0 = iterc # reset step length
+    # paras['iter0'] = iterc
+    # fout =open(foptim,'w')
+    # fout.write(json.dumps(paras,indent=4))
+    # fout.close()
     
 if try_old_sl==1:
     if iterc>iter0:
