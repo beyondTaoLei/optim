@@ -4,7 +4,7 @@ generate initial model and input json file for Rosenbrock problem
 Usage:
     cd /home/tao/Nutstore_Files/works/optim/demo/rosenbrock/prj
     python ../S0_prepare.py optim_PSTD
-    python ../S0_prepare.py optim_PNLCG
+    python ../S0_prepare.py optim_NLCG
     python ../S0_prepare.py optim_LBFGS
     python ../S0_prepare.py optim_TRN
 """
@@ -15,7 +15,7 @@ import json
 import numpy as np
 
 #Input paras
-fdir    =sys.argv[1] # optim_PSTD, optim_PNLCG, optim_LBFGS, optim_TRN 
+fdir    =sys.argv[1] # optim_PSTD, optim_NLCG, optim_LBFGS, optim_TRN 
 # make directory
 os.makedirs(fdir, exist_ok=True)
 os.makedirs('FD', exist_ok=True)
@@ -25,24 +25,16 @@ try:
 except OSError:
     pass
 
-# initial model
-a=np.array([0.25, 0.25], np.float32)
-a.tofile('FD/mod.bin')
-
 optim={
-    'optimroot'         :'/home/tao/Nutstore_Files/works/optim', #[IN] software path
-    'demoroot'          :'/home/tao/Nutstore_Files/works/optim/demo/rosenbrock', #[IN] current demo path
+    'Program path'      :'comment',
+    'optimroot'         :'/mnt/c/Users/90541/Documents/work/software/optim', #[IN] software path
     'Optimization'      :'comment',
     'fmod'              :'FD/mod.bin',      #[IN] the current model in work memory
-    'fcost'             :'FD/misfit.dat',   #[OUT] the misfit at point fmod
-    'fgrad'             :'FD/grad.bin',     #[OUT] the gradient at point fmod
-    'fhess'             :'FD/hess.bin',     #[OUT] the Hessian vector product at point [fmod, fvctr]
-    'fvctr'             :'FD/vctr.bin',     #[OUT] the vector pk in LCG algorithm
-    'PNLCG'             :'comment',
+    'NLCG'             :'comment',
     'powell'            :0,                 #[IN] wheter to check Powell restart condition(1-yes, 0-no)
     'l-BFGS'            :'comment',
     'l'                 :5,                 #[IN] the maximum storing number of the pairs {sk,yk}(~3-7)
-    'TN'                :'comment',
+    'TRN'               :'comment',
     'conv_CG'           :0,                 #[IN] initial status for debug, set to 0
     'niter_max_CG'      :12,                #[IN] maximum number of inner conjugate gradient loop
     'flag_singularity'  :1,                 #[IN] 1: singularity test; 0: no test
@@ -52,7 +44,7 @@ optim={
     'pro_sing'          :1.0E-10,           #[IN] threshold \varsigma for singularity test
     'pro_curv'          :1.0E-10,           #[IN] threshold \delta for negative curvature test (flag_negative = 1)
     'pro_trun'          :0.5,               #[IN] threshold c_q for truncation test
-    'eta'               :0.9,               #[IN] if ||residuals|| <= eta * ||gradient||, skip the inner CG loop
+    'eta'               :0.0,               #[IN] if ||residuals|| <= eta * ||gradient||, skip the inner CG loop
     'eta_update'        :0,                 #[IN] 1: update the eta during inversion cycle; 0: not update
     'steplength'        :'comment',
     'try_old_sl'        :1,                 #[IN] whether to use steplength from last iter.(1-yes, 0-no)
@@ -67,9 +59,17 @@ optim={
     'iter0'             :1,                 #[IN] the initial iteration at current inversion stage/phase
     'niter_max'         :200,               #[IN] maximum iterations, for future design
 }
-mod = np.fromfile(optim['fmod'], np.float32)
-optim['n'] = mod.shape[0] #only for TRN now
-optim['fdir'] = fdir
+optim['demoroot'] = os.path.dirname(os.path.dirname(__file__)) #[IN] current demo path
+# initial model
+mod=np.array([0.25, 0.25], np.float32)
+mod.tofile('FD/mod.bin')
+optim['n']     = mod.shape[0]       #only for TRN now
+optim['fcost'] = 'FD/misfit.dat'   #[OUT] the misfit at point fmod
+optim['fgrad'] = 'FD/grad.bin'     #[OUT] the gradient at point fmod
+optim['fhess'] = 'FD/hess.bin'     #[OUT] the Hessian vector product at point [fmod, fvctr]
+optim['fvctr'] = 'FD/vctr.bin'     #[OUT] the vector pk in LCG algorithm
+
+
 # write work infomation
 foptim = os.path.join(fdir,'optim.json')
 fout = open(foptim,'w')

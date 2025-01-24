@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pylab as plt
 
 #Input paras
-fdir='optim_PSTD'
+fdir='STD'
 foptim=os.path.join(fdir,'optim.json')
 optim   =eval(open(foptim).read())
 niter_max =optim['niter_max']

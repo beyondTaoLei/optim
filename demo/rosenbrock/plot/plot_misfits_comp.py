@@ -9,15 +9,15 @@ misfits1=np.zeros(50,np.float32)
 misfits2=np.zeros(50,np.float32)
 misfits3=np.zeros(50,np.float32)
 for iter1 in range(50):
-    step   =eval(open(os.path.join('optim_PSTD','iter'+str(iter1+1), 'step.json')).read())
+    step   =eval(open(os.path.join('STD','iter'+str(iter1+1), 'step.json')).read())
     misfits0[iter1]=step['misfit0']
 
 for iter1 in range(50):
-    step   =eval(open(os.path.join('optim_PNLCG','iter'+str(iter1+1), 'step.json')).read())
+    step   =eval(open(os.path.join('NLCG','iter'+str(iter1+1), 'step.json')).read())
     misfits1[iter1]=step['misfit0']
-    step   =eval(open(os.path.join('optim_LBFGS','iter'+str(iter1+1), 'step.json')).read())
+    step   =eval(open(os.path.join('LBFGS','iter'+str(iter1+1), 'step.json')).read())
     misfits2[iter1]=step['misfit0']
-    step   =eval(open(os.path.join('optim_TRN','iter'+str(iter1+1), 'step.json')).read())
+    step   =eval(open(os.path.join('TRN','iter'+str(iter1+1), 'step.json')).read())
     misfits3[iter1]=step['misfit0']
 
 #misfit

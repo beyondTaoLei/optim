@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
-import os,sys
+import os
+import sys
 import numpy as np
-from rosenbrock import func
-import matplotlib.pylab as plt
 import matplotlib.cm as cm
+import matplotlib.pylab as plt
+
+dir0 = os.path.dirname(__file__)
+sys.path.insert(0, os.path.join(dir0, '..', 'prob'))
+from rosenbrock import func
 
 #Input paras
 fdir        =sys.argv[1]#'optim_LBFGS'
