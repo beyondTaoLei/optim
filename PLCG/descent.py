@@ -169,7 +169,7 @@ def PLCG(G, Wd, Wm, Lms, mu, P, b, m0, mref, des_type, kmax=100, tol=1e-5):
 fdir        =sys.argv[1] #optim_PLCG
 foptim      =os.path.join(fdir,'optim.json')
 optim       =eval(open(foptim).read())
-percond     =optim['percond']
+precond     =optim['precond']
 fsensmat    =optim['fsensmat']
 fwgtd       =optim['fwgtd']
 fwgtm       =optim['fwgtm']
@@ -230,7 +230,7 @@ row_list=[["idx", "lambda", "phid", "phim", "bnorm"]]
 
 mu = lambda0 * lambda0
 # preconditional term
-if percond == 1: #update P
+if precond == 1: #update P
     P[:] = diag1 + mu * diag2
     #P2 = np.sort(P[P>0.0], kind='quicksort') #should be careful for quicksort method
     #P = P + P2[int(M*0.03)]
