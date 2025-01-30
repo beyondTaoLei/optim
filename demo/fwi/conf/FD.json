@@ -1,0 +1,100 @@
+{
+"Domain Decomposition" : "comment",
+                        "NPROCX" : "4",
+                        "NPROCY" : "1",
+
+"FD order" : "comment",
+                        "FDORDER" : "8",
+                        "FDORDER_TIME" : "2",
+                        "MAXRELERROR" : "1",
+
+"2-D Grid" : "comment",
+                        "NX" : "1700",
+                        "NY" : "350",
+                        "DH" : "10.0",
+
+"Model" : "comment",
+                        "READMOD" : "1",
+                        "MFILE" : "../../model/inv/inv",
+                        "WRITE_MODELFILES" : "0",
+
+"Q-approximation" : "comment",
+                        "L" : "0",
+                        "FL1" : "5.0", 
+                        "TAU" : "0.00001",
+
+"Boundary Conditions" : "comment",
+                        "FREE_SURF" : "1",
+                        "BOUNDARY" : "0",
+
+                        "FW" : "15",
+                        "ABS_TYPE" : "1",
+                        "ABS_TYPE values : CPML-Boundary=1; Damping-Boundary=2" : "comment",
+
+"Parameter for CPML (ABS_TYPE=1)" : "comment",
+                        "NPOWER" : "4.0",
+                        "K_MAX_CPML" : "1.0",
+                        "VPPML" : "3000.0",
+                        "FPML" : "15.0",
+
+"Parameter for ABS_TYPE=2" : "comment",
+                        "DAMPING" : "8.0",
+
+"Time Stepping" : "comment",
+                        "TIME" : "6.50",
+                        "DT" : "1.0e-03",
+
+"Source" : "comment",
+                        "FLAG_SU_BIN" : "1",
+                        "SRC_F_SP" : "./wavelet.su",
+
+"Receiver" : "comment",
+                        "SEISMO" : "2",
+                        "READREC" : "1",
+                        "REC_FILE" : "./receiver.dat",
+                        "REFRECX, REFRECY" : "0.0 , 0.0",
+                        "XREC1,YREC1" : "270.0 , 270.0",
+                        "XREC2,YREC2" : "2000.0 , 270.0",
+                        "NGEOPH" : "1",
+                        "SEISMO2" : "0",
+
+"Receiver array" : "comment",
+                        "REC_ARRAY" : "0",
+                        "REC_ARRAY_DEPTH" : "70.0",
+                        "REC_ARRAY_DIST" : "40.0", 
+                        "DRX" : "4",
+
+"Seismograms" : "comment",
+                        "NDT" : "1",
+                        "SEIS_FORMAT" : "1",
+                        "SEIS_FILE" : "./seis",
+
+"Snapshots" : "comment",
+                        "SNAP" : "0",
+                        "TSNAP1" : "0.0e-3",
+                        "TSNAP2" : "6.5",
+                        "TSNAPINC" : "5.0e-03",
+                        "IDX" : "1",
+                        "IDY" : "1",
+                        "SNAP_FORMAT" : "3",
+                        "SNAP_FILE" : "./snap",
+                        "FREQ_FILE" : "./freqs_fd.dat",
+                        
+"General inversion parameters" : "comment",
+                        "FORWARD_ONLY" : "1",
+                        "TSHIFT" : "0.2",
+                        "INV_VP" : "1",
+                        "INV_RHO" : "0",
+                        "EPRECOND" : "1",
+                        "EPSILON" : "0.03",
+
+"Monitoring the simulation" : "comment",
+                        "LOG_FILE" : "test.log",
+                        "LOG" : "0",
+                        "OUT_TIMESTEP_INFO" : "10000",
+
+"Checkpoints" : "comment",
+                        "CHECKPTREAD" : "0",
+                        "CHECKPTWRITE" : "0",
+                        "CHECKPT_FILE" : "tmp/checkpoint_sofi2D"
+}

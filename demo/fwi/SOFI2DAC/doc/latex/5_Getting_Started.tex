@@ -1,0 +1,188 @@
+%------------------------------------------------------------------------------------------------%
+
+\chapter{\label{cha:Getting-Started}Getting Started}
+
+%------------------------------------------------------------------------------------------------%
+
+In the following sections, we give a short description of the different modeling  parameters, options and how the program is used in a parallel MPI environment.
+
+\section{Requirements}
+The parallelization employs functions of the Message Passing Interface (MPI). MPI has to be installed when compiling and running the IFOS2D software. At least two implementations exist for Unix-based networks: OpenMPI and MPICH2. The LAM-MPI implementation is no longer supported by the developers. Currently all three implementation work with IFOS2D. OpenMPI and MPICH2 are MPI programming environments and development systems for heterogeneous computers on a network. With OpenMPI or MPICH2, a dedicated cluster or an existing network computing  infrastructure can act as one parallel computer solving one problem. The latest version of OpenMPI can be obtained from \href{http://www.open-mpi.org}{http://www.open-mpi.org}.% MPICH2 is available at \href{http://www.open-mpi.org}{http://www-unix.mcs.anl.gov/mpi/mpich}. LAM-MPI can be downloaded here: \href{http://www.lam-mpi.org}{http://www.lam-mpi.org}.
+
+
+\section{Installation}
+\label{installation}
+After unpacking the software package (e.g. by \textit{tar -zxvf IFOS2D.tgz}) and changing to the directory IFOS2D (\textit{cd IFOS2D})  you will find different subdirectories:
+
+\textbf{bin}\\
+This directory contains all executable programs, generally IFOS2D and snapmerge. These executables are generated using the command \textit{make $<$program$>$} (see below).
+
+\textbf{contrib}\\
+This directory contains external contributions to IFOS2D.
+
+\textbf{doc}\\
+This directory contains documentation on the software (this users guide) as well as some important papers in PDF format on which the software is based on (see above).
+
+\textbf{genmod}\\
+Contains the model and benchmark files for IFOS2D.
+
+\textbf{mfiles}\\
+Here some Matlab routines (m-files) are stored. These Matlab programs can be used to find optimal relaxation frequencies to approximate a constant Q (qapprox.m) or to plot Q as a function of frequency for certain relaxation frequencies and value of tau (qplot.m). It is necessary to have the Matlab Optimization Toolbox installed. For further details we refer to \cite{bohlen:98} and to the paper in which the so-called tau-method is described \cite{blanch:95}.
+
+\textbf{par}\\
+Parameter files for IFOS2D modeling.
+
+% \textbf{scripts}\\
+% Here, you will find examples of script-files used to submit modeling jobs on cluster-computers.
+
+\textbf{src}\\
+This directory contains the complete source codes.  The following programs are available and may be compiled using make $<$program$>$.
+
+
+\section{Compilation of IFOS2D}\label{compexec}
+Before compiling the main program IFOS2D you have to compile the required additional libraries e.g. for timedomain filtering, the inversion for the correction filter for the unknown source time function and so on. In the IFOS2D/par directory simply use:
+\newline
+
+\textit{make}
+\newline
+
+which will install the following libraries:
+
+{\color{blue}{\begin{verbatim}
+lib cseife
+lib stfinv
+lib aff
+lib fourier
+\end{verbatim}}}
+as well as the binary of IFOS2D itself.
+In contrib/Makefile\_var there were several environment variables which are necessary to compile the libraries successfully. Furthermore, it is necessary to preinstall FFTW - Fastest Fourier Transform in the West (\href{http://www.fftw.org/}{http://www.fftw.org/}). Please check the successful installation in the folder contrib/header.
+\newline
+  
+The source code of IFOS2D is located in the directory IFOS2D/src. To compile IFOS2D the name of the model function has to be entered in the src/MAKEFILE. Depending on your MPI environment (MPI distribution) you may need to modify the compiler options in src/Makefile. For a few typical platforms the compiler options are available in src/Makefile. It is often useful to enable a moderate level of optimization (typically -O3). The highest level of optimization -O4 can lead to a strong performance improvement. For example the optimization option -O4 of the hcc LAM compiler leads to a speedup of IFOS2D of approximately 30~\%. Eventhough keep in mind that -O4 can also lead to crashes and compilation errors, when used in combination with certain compilers. No other changes in the Makefile should be necessary. 
+{\color{blue}{\begin{verbatim}
+# Makefile for IFOS2D
+
+#--------------------------------------------------------
+# edit here:
+
+# source code for model generation
+
+#MODEL = hh.c
+MODEL = ../genmod/1D_linear_gradient_visc.c
+MODEL_AC = ../genmod/1D_linear_gradient_ac.c
+MODEL_EL = ../genmod/1D_linear_gradient_el.c
+MODEL_VAC = ../genmod/1D_linear_gradient_viscac.c
+EXEC= ../bin
+
+# Description:
+# CC = Compiler
+# LFLAGS = Linker flag
+# CFLAGS = Compiler flag
+
+# LINUX with OpenMPI / IntelMPI and INTEL Compiler
+# Use icc whenever possible, this will be much faster than gcc
+CC=mpiicc
+LFLAGS=-lm -lcseife -lstfinv -laff -lfourierxx -lfftw3 -lstdc++
+CFLAGS=-O3
+SFLAGS=-L./../contrib/libcseife -L./../contrib/bin
+IFLAGS=-I./../contrib/libcseife -I./../contrib/header -I.
+
+# LINUX with OpenMPI / IntelMPI and GCC Compiler
+#CC=mpicc
+#LFLAGS=-lm -lcseife -lstfinv -laff -lfourierxx -lfftw3 -lstdc++
+#CFLAGS=-O3
+#SFLAGS=-L./../contrib/libcseife -L./../contrib/bin
+#IFLAGS=-I./../contrib/libcseife -I./../contrib/header -I.
+
+
+# after this line, no further editing should be necessary
+# --------------------------------------------------------
+\end{verbatim}}} 
+
+The program snapmerge that is used to merge the snapshots (see below) can be compiled with ''make snapmerge'' in the directory /src. Since this is not a MPI program (no MPI functions are called) the MPI libraries are not required and any standard compiler (like gcc and cc) can be used to compile this program. The executables IFOS2D and snapmerge are located in the directory /bin. 
+
+\section{Running the program}\label{compexec1} 
+Each IFOS2D run reads the required parameters from a parameter file par/IFOS2D.json. A detailed description of the parameters are described in chapter \ref{Definition-parameters_json}. 
+The command to start a simulation on 8 processor with the lowest priority of -19 (in order to allow working on the a workstation while running a simulation) is as follows. Please note, that we assume you have navigated to the folder IFOS2D/par.
+\newline
+
+\textit{mpirun -np 8 nice -19 ../bin/IFOS2D IFOS2D.json }
+\newline
+
+It is often useful to save the standard output of the program for later reference. The screen output may be saved to IFOS2D.out using
+\newline
+
+\textit{mpirun -np 8 nice -19 ../bin/IFOS2D IFOS2D.json > IFOS2D.out}
+\newline
+
+% \newpage
+
+After the output of geometry and model parameters the code starts the time stepping and displaying information:
+
+{\color{blue}{\begin{verbatim} 
+==============================================================================
+
+ MYID=0 * Starting simulation (forward model) for shot 1 of 5. Iteration 1 ** 
+
+==============================================================================
+
+ ****************************************
+ ****************************************
+
+==============================================================================
+
+ MYID=0 * Starting simulation (forward model) for shot 2 of 5. Iteration 1 ** 
+
+==============================================================================
+
+ ****************************************
+ ****************************************
+
+==============================================================================
+
+ MYID=0 * Starting simulation (forward model) for shot 3 of 5. Iteration 1 ** 
+
+==============================================================================
+
+ ****************************************
+ ****************************************
+
+==============================================================================
+
+ MYID=0 * Starting simulation (forward model) for shot 4 of 5. Iteration 1 ** 
+
+==============================================================================
+
+ ****************************************
+ ****************************************
+
+==============================================================================
+
+ MYID=0 * Starting simulation (forward model) for shot 5 of 5. Iteration 1 ** 
+
+==============================================================================
+
+ ****************************************
+ ****************************************
+
+ Forward calculation finished.
+\end{verbatim}}}  
+
+\section{Postprocessing}  
+The wavefield snapshots can be merged using the program \textit{snapmerge}. The program snapmerge is not a MPI program. Therefore, it can be executed without MPI and the mpirun command. You can run snapmerge on any PC since a MPI environment is not required. You may therefore copy the snapshot outputs of the different nodes to another non-MPI computer to merge the files together. \textit{snapmerge} reads the required information from the IFOS2D parameter file. Simply type
+\newline
+
+\textit{../bin/snapmerge IFOS2D.json}
+\newline
+
+Depending on the model size the merge process may take a few seconds or hours. For the simple block model it only takes a few seconds. The output should read like this:
+{\color{blue}{\begin{verbatim}
+ pressure (files: ./snap/test.bin.p.??? ).
+
+ writing merged snapshot file to  ./snap/test.bin.p
+ Opening snapshot files: ./snap/test.bin.p.???  ... finished.
+ Copying... ... finished.
+ Use
+ xmovie n1=100 n2=100 < ./snap/test.bin.p loop=1 label1=Y label2=X title=%g
+ to play movie.
+\end{verbatim}}}

@@ -1,0 +1,172 @@
+%------------------------------------------------------------------------------------------------%
+\chapter{\label{cha:STF-Inversion}Source Time Function Inversion}
+\textbf{Introduction:}\\
+To remove the contribution of the unknown source time function (STF) from the waveform residuals, it is necessary to design a filter which minimizes the misfit to the field recordings and raw synthetics. The library libstfinv from Thomas Forbriger was exported from TFSoftware and can be used with a C API in IFOS2D. The purpose of this library is to provide methods for the derivation of source-time-functions in approaches to full waveform inversion. Given a set of recorded data and a set of synthetic data (typically, but not necessarilly the impulse response of the subsurface) a source time function is obtained due to some optimization citerion. The synthetic waveforms are convolved with this wavelet and the convolved synthetics as well as the wavelet itself are returned to the user.
+
+The source time wavelet in this context not necessarily is the actual force time history of the source used in the experiment or a similar quantity of physical meaning. The source time wavelet simply is the wavelet which minimizes the misfit between synthetic and recorded waveforms due to some misfit condition, if the synthetics are concolved with this wavelet. In particular this implies that the synthetics not necessarily must be the impulse response (Greens function) of the subsurface, they may simply be synthetic waveform computed for some generic source wavelet (like a Ricker wavelet). The derived source time function then have to be understood with respect to this generic wavelet.\\
+\newline
+The library provides different engines to find an optimal source time wavelet. The basic steps of operation are:
+\begin{enumerate}
+ \item An engine is initialized. At this step pointers to arrays are passed to the engine together with some header information. The engines memorizes these pointers and expects to find the recorded data as well as the synthetics at the inidcated locations in memory.
+ \item The run()-function of the engine is called. The engine takes the recorded and synthetic data currently found at the memory arrays, calculates an optimzed wavelet and returns the wavelet together with the convolved synthetics by copying them to the memory locations inidicated by the initializer of the engine. This step is repeated after each computation of synthetic data.
+ \item The engine is removed once the iteration of inversion is terminated.
+\end{enumerate}
+\textbf{How to construct parameter strings:}\\
+A specific engine is selected by passing a parameter string to the library interface. This parameter string may further contain parameters to control the execution mode of the engine. The parameter string starts with an ID-sequence identifying the desired engine. In the parameter string the ID-sequence is terminated by a colon (:).\\
+
+After selecting the desired engine, the interface function strips of the ID-sequence as well as the colon from the parameter string and initializes the engine, passing the references to user workspace as well as the rest of the parameter string. The rest of the parameter string may consist of several control parameters being separated by colons (:). Each control parameter may just be a flag (switch to turn an option on) or may come along with a parameter value. The value of the parameter is separated by an equal sign (=).
+
+Examples:
+\begin{itemize}
+
+        \item To select frequency domain least squares and shift the returned source time function by 0.4s and switch on verbose mode, pass the following parameter string:\\
+        \textit{fdlsq:tshift=0.4:verbose} 
+
+
+        \item To select frequency domain least squares, apply offset dependent weights and use a power of two to speed up the FFT:\\
+        \textit{fdlsq:pow2:exp=1.4} 
+\end{itemize}
+\textbf{Detailed description of the engine 'Fourier domain least squares (fdlsq)'}\\
+If
+\begin{itemize}
+     \item $d_{lk}$ is the Fourier coefficient of recorded data at Frequency
+       $f_l$ and receiver $k$ at offset $r_k$,
+     \item $s_{lk}$ is the Fourier coefficient of the corresponding
+       synthetics and
+     \item $q_l$ is that of the sought source time function,
+\end{itemize}
+then this engine will minimize the objective function\\
+     \begin{equation}
+       E=\sum\limits_{l,k}\left|w_{lk}\,
+          \left(d_{lk}-s_{lk}q_l\right)
+       \right|^2+\sum\limits_{l}\lambda^2\left|q_l\right|^2
+       =\chi^2+\psi^2
+     \end{equation}
+     with respect to the real part $q_l^\prime$ and the
+     imaginary part $q_l^{\prime\prime}$ of 
+     \begin{equation}
+       q_l=q_l^\prime+i\,q_l^{\prime\prime}.
+     \end{equation}
+     In the above expression
+     \begin{equation}
+       \chi^2=\sum\limits_{l,k}\left|w_{lk}\,
+               \left(d_{lk}-s_{lk}q_l\right)
+                \right|^2
+     \end{equation}
+     is the data misfit with weights $w_{lk}$ and
+     \begin{equation}
+       \psi^2=\sum\limits_{l}\lambda^2\left|q_l\right|^2
+     \end{equation}
+     is used for regularization and will introduce a water-level in the
+     deconvolution.
+     $\lambda$ will balance both contributions.
+     The conditions
+     \begin{equation}
+       \frac{\partial E}{\partial q_l^\prime}\stackrel{!}{=}0
+       \quad\wedge\quad
+       \frac{\partial E}{\partial q_l^{\prime\prime}}\stackrel{!}{=}0
+     \end{equation}
+     result in (\cite{Forbriger:01}, appendix A.3)
+     \begin{equation}
+       q_l=\frac{
+         \eta^2\sum\limits_{k}f_k^2\,s_{kl}^\ast\,d_{kl}
+       }{
+         \lambda^2+\eta^2\sum\limits_{k}f_k^2\,s_{kl}^\ast\,s_{kl}
+       }
+       \quad\forall\, l
+     \end{equation}
+     where
+     \begin{equation}
+       w_{lk}=\eta\,f_k
+     \end{equation}
+     and $f_k$ is a receiver specific weighting factor.
+     Now $\eta$ and $\lambda$ have to be used to balance the
+     regularization.
+     We aim to specify a waterlevel as a fraction of synthetic data energy.\\
+\newline
+      
+     \textbf{Setting up the waterlevel:}\\
+     The misfit equals one if the scaled energy of the residual
+     $d_{lk}-s_{lk}q_l$ equals the scaled energy of the synthetics
+     $s_{lk}$ and
+     \begin{equation}
+       \eta^2=\frac{1}{\sum\limits_k f_k^2\sum\limits_l \left|s_{lk}\right|^2}
+     \end{equation}
+     is the reciprocal of the scaled energy of the synthetics.
+     If we then choose
+     \begin{equation}
+       \frac{\lambda^2}{\eta^2}=\frac{\epsilon^2}{N\eta^2}=
+         \frac{\epsilon^2}{N}\sum\limits_k f_k^2\sum\limits_{l=0}^{N-1}
+        \left|s_{lk}\right|^2
+     \end{equation}
+     where $N$ is the number of frequencies, then $\epsilon^2$
+     will specify a waterlevel as a fraction of the scaled energy of the
+     synthetics.\\
+\newline
+    
+     \textbf{Using Parceval's Theorem to calculate signal energy:}\\
+     Parceval's Theorem for a signal $a(t)$ and its Fourier transform 
+     $\tilde{a}(\omega)$ is
+     \begin{equation}
+       \int\limits_{-\infty}^{+\infty}\bigl|a(t)\bigr|^2\,\textrm{d} t=
+       \int\limits_{-\infty}^{+\infty}\bigl|\tilde{a}(\omega)\bigr|^2\,
+         \frac{\textrm{d} \omega}{2\pi}.
+     \end{equation}
+     If $S_{jk}$ are the time series samples corresponding to the Fourier
+     coefficients $\tilde{s}_{lk}$ and $\Delta t$ is the sampling
+     interval then
+     \begin{equation}
+       \sum\limits_{k=0}^{M-1}\left|S_{jk}\right|^2\,\Delta t=
+       \sum\limits_{l=0}^{M-1}\left|\tilde{s}_{lk}\right|^2\,\frac{1}{M\,\Delta t},
+     \end{equation}
+     where $M=2N$ is the number of samples in the time series.
+     In the above calculation the energy sum only uses the positive
+     frequencies and
+     \begin{equation}
+       \sum\limits_k f_k^2\sum\limits_{l=0}^{N-1}\left|\tilde{s}_{lk}\right|^2
+       =
+         N\,(\Delta t)^2\,
+         \sum\limits_k f_k^2
+         \sum\limits_{j=0}^{2N-1}\left|S_{jk}\right|^2.
+     \end{equation}
+     Fourier coefficients $s_{lk}$ calculated by the
+     stfinv::STFFourierDomainEngine are not scaled (see documentation of
+     libfourierxx and libfftw3), such that
+     \begin{equation}
+       \Delta t\,s_{lk}=\tilde{s}_{lk}
+     \end{equation}
+     (both, $s_{lk}$ and $\tilde{s}_{lk}$ are Fourier coefficients).
+     Consequently
+     \begin{equation}
+       \sum\limits_k f_k^2\sum\limits_{l=0}^{N-1}\left|s_{lk}\right|^2
+       =
+         N\,
+         \sum\limits_k f_k^2
+         \sum\limits_{j=0}^{2N-1}\left|S_{jk}\right|^2.
+     \end{equation}
+    
+     \textbf{Final calculation recipe:}\\
+     The solution to our problem is
+     \begin{equation}
+       q_l=\frac{
+         \sum\limits_{k}f_k^2\,s_{lk}^\ast\,d_{lk}
+       }{
+         \epsilon^2\,\sum\limits_k f_k^2
+                    \sum\limits_{j=0}^{2N-1}\left|S_{jk}\right|^2
+               +\sum\limits_{k}f_k^2\,s_{lk}^\ast\,s_{lk}
+       }
+       \quad\forall\, l,
+     \end{equation}
+     where
+     \begin{equation}
+       \sum\limits_{j=0}^{2N-1}\left|S_{jk}\right|^2
+     \end{equation}
+     is the sum of the squared sample values $S_{jk}$ of the synthetic
+     time series for receiver $k$, $f_k$ are the scaling factors, and $\epsilon^2$
+     is the water level parameter.
+\newline
+     
+Author: Thomas Forbriger.
+\newline
+
+For more information see \href{http://www.opentoast.de/Data_analysis_code_soutifu_and_libstfinv.php}{http://www.opentoast.de/Data\_analysis\_code\_soutifu\_and\_libstfinv.php} .

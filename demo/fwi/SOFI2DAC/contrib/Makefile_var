@@ -1,0 +1,39 @@
+# this is <Makefile_var>
+# ----------------------------------------------------------------------------
+# 
+# Copyright (c) 2015 by Thomas Forbriger (BFO Schiltach) 
+# 
+# set variables expected by vendor Makefiles
+# 
+# REVISIONS and CHANGES 
+#    02/11/2015   V1.0   Thomas Forbriger
+# 
+# ============================================================================
+#
+# This file is included (via make include statement) by Makefiles in
+# aff, fourier, stfinv, and libcseife
+#
+# Its purpose is to set make variables which are expected by vendor Makefiles.
+#
+# ============================================================================
+
+# extract relative path to contrib with respect of including Makefile
+CONTRIBDIR:=$(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+
+# ----------------------------------------------------------------------------
+# set values required by vendor Makefiles
+LOCINCLUDEDIR=$(CONTRIBDIR)/header
+
+LOCLIBDIR=$(CONTRIBDIR)/bin
+LOCBINDIR=$(CONTRIBDIR)/bin
+
+TF_WWWBASEDIR=$(CONTRIBDIR)/doc
+
+TF_BROWSER=firefox
+
+# set Fortran compiler if not yet set in environment
+ifeq "$(origin FC)" "default"
+FC=/usr/bin/g77-3.3
+endif
+
+# ----- END OF Makefile_var ----- 

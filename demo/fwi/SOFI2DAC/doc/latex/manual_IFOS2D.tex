@@ -1,0 +1,221 @@
+%% LyX 1.5.1 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[oneside,english,onecolumn]{book}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+% \geometry{a4paper,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\geometry{letterpaper,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+\usepackage{float}
+\usepackage{textcomp}
+\usepackage{amsmath}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{placeins}
+
+% figures
+\usepackage[pdftex]{graphicx}
+\usepackage{eso-pic}
+\usepackage[position=top,singlelinecheck=false]{subfig}
+
+% we are running pdflatex, so convert .eps files to .pdf
+\usepackage{epstopdf}
+\usepackage{tikz}
+\usepackage{amssymb}
+\IfFileExists{url.sty}{\usepackage{url}}
+                      {\newcommand{\url}{\texttt}}
+\usepackage[authoryear]{natbib}
+
+\usepackage{bibentry}
+\nobibliography*
+
+% \renewcommand{\familydefault}{\sfdefault}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+\newcommand{\noun}[1]{\textsc{#1}}
+%% A simple dot to overcome graphicx limitations
+\newcommand{\lyxdot}{.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+\newenvironment{lyxcode}
+{\begin{list}{}{
+\setlength{\rightmargin}{\leftmargin}
+\setlength{\listparindent}{0pt}% needed for AMS classes
+\raggedright
+\setlength{\itemsep}{0pt}
+\setlength{\parsep}{0pt}
+\normalfont\ttfamily}%
+ \item[]}
+{\end{list}}
+
+% figures
+\usepackage[dvips]{epsfig}
+\usepackage{wrapfig}
+
+% fonts
+\usepackage{times}
+
+% hyperlinks to sections and references
+\usepackage[colorlinks=true,
+            linkcolor=blue,
+            urlcolor=blue,
+            citecolor=blue,
+            pdftex,bookmarks=true,
+            bookmarksnumbered=true,
+            pdfpagemode=None,
+            pdfstartview=FitH,
+            pdfpagelayout=SinglePage,
+            pdfborder={0 0 0}]{hyperref}
+
+\newcommand{\urlwithparentheses}[1]{(\url{#1})}
+
+% biblio GJI
+\bibliographystyle{abbrvnat}
+
+\newcommand{\nexxi}{\mbox{\texttt{NEX\_XI\/}}}
+\newcommand{\nexeta}{\mbox{\texttt{NEX\_ETA\/}}}
+\newcommand{\nprocxi}{\mbox{\texttt{NPROC\_XI\/}}}
+\newcommand{\nproceta}{\mbox{\texttt{NPROC\_ETA\/}}}
+\newcommand{\nchunks}{\mbox{\texttt{NCHUNKS\/}}}
+
+\newcommand{\FIG}[1]{figure~\ref{#1}}
+
+\newcommand{\MB}[1]{{\mbox{\mathversion{bold}$#1$}}}
+
+\newcommand{\EQ}[2]{
+    \begin{equation}
+	\label{#1}
+        #2
+    \end{equation}
+}
+
+\newcommand{\ER}[1]{(\ref{#1})}
+
+\usepackage{babel}
+\makeatother
+
+\begin{document}
+
+\input{0_Title.tex}
+
+\FloatBarrier
+\newpage 
+\thispagestyle{empty}
+\quad 
+\newpage
+% \maketitle
+
+\section*{Authors}
+
+The IFOS2D code (formerly DENISE) was at first developed by Daniel K\"ohn, Denise De Nil and Andr$\rm{\acute{e}}$ Kurzmann at the Christian-Albrechts-Universit\"at Kiel and TU Bergakademie Freiberg (Germany) from 2005 to 2009.\\
+\newline
+This documentation was originally written by Daniel K\"ohn.\\ Large parts of the shown theory is extracted from his dissertation \cite{koehn:11}.\\
+\newline
+The forward code is based on the viscoelastic FD code fdveps (now SOFI2D) by \cite{bohlen:02}.\\
+\newline
+Different external libraries for time domain filtering are used.\\ 
+The copyright of the source codes are held by different persons:\\
+\newline
+cseife.c, cseife.h, lib\_stfinv, lib\_aff, lib\_fourier:\\ 
+Copyright $\copyright$ 2005 by Thomas Forbriger (BFO Schiltach) \\
+\newline
+cseife\_deriv.c, cseife\_gauss.c, cseife\_rekfl.c, cseife\_rfk.c and cseife\_tides.c:\\
+Copyright $\copyright$ 1984 by Erhard Wielandt\\
+This algorithm was part of seife.f. A current version of seife.f can be obtained from http://www.software-for-seismometry.de/\\
+\newline 
+The Matlab implementation of a few SU routines, mainly used to read and write SU files are:\\
+Copyright $\copyright$ 2008, Signal Analysis and Imaging Group\\
+For more information: http://www-geo.phys.ualberta.ca/saig/SeismicLab\\
+Author: M.D.Sacchi\\
+\newline
+
+\noindent
+Since then it has been developed and maintained by a development team: in alphabetical order,\\
+\newline
+(up to 2014)\\
+Lisa Groos,\\
+Sven Heider,\\
+Martin Sch\"afer,\\
+\newline
+(since 2014) \\
+Laura Ga\ss ner,\\
+Tilman Metz,\\
+Niklas Thiel,\\
+Florian Wittkamp.\\
+% (add other developers here in the future).
+
+\newpage
+
+\section*{License}\label{license}
+
+IFOS2D is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.0 of the License only.\\
+ \newline
+IFOS2D is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with IFOS2D. See file COPYING and/or \path{http://www.gnu.org/licenses/gpl-2.0.html}.\\
+\newline
+The Authors of IFOS2D are listed in file \path{AUTHORS}.
+%------------------------------------------------------------------------------------------------%
+\section*{Acknowledgments}
+%------------------------------------------------------------------------------------------------%
+
+We thank for constructive discussions and further code improvements:\\
+\newline
+Daniel K\"ohn (Christian-Albrechts-Universit\"at Kiel), \\
+Anna Przebindowska (Karlsruhe Institute of Technology), \\
+Olaf Hellwig (TU Bergakademie Freiberg), \\
+Dennis Wilken and Wolfgang Rabbel (Christian-Albrechts-Universit\"at Kiel).
+\newline
+
+\noindent The development of the code was supported by the Christian-Albrechts-Universität Kiel, TU Bergakademie Freiberg, Deutsche Forschungsgemeinschaft (DFG), Bundesministerium für Bildung und Forschung (BMBF), the Wave Inversion Technology (WIT) Consortium and the Verbundnetz-Gas AG (VNG).
+
+\noindent The code was tested and optimized at the computing centres of Kiel University, TU Bergakademie Freiberg, TU Chemnitz, TU Dresden, the Karlsruhe Institute of Technology (KIT) and the Hochleistungsrechenzentrum Nord (HLRN 1+2). 
+\newline
+
+%------------------------------------------------------------------------------------------------%
+\section*{References}
+%------------------------------------------------------------------------------------------------%
+
+\,
+
+\noindent\bibentry{koehn:11}\\
+
+\noindent\bibentry{kohn2012influence}\\
+
+\noindent\bibentry{groos2013}\\
+
+\noindent\bibentry{groos2014}\\
+
+\noindent\bibentry{forbriger2014}\\
+
+\noindent\bibentry{schaefer2014a}\\
+
+\noindent\bibentry{schaefer2014}\\
+
+\newpage{}
+
+\tableofcontents{}
+
+\input{1_Introduction}
+
+\input{2_Theoretical_Background}
+
+\input{3_Adjoint_Problem}
+
+\input{4_Source_Wavelet_Inversion}
+
+\input{5_Getting_Started}
+
+\input{6_Parameter_Definition}
+
+\input{7_Examples}
+
+\bibliography{thesis}
+
+%------------------------------------------------------------------------------------------------%
+
+\appendix
+
+\end{document}

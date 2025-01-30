@@ -1,0 +1,39 @@
+INSTALL for IFOS2D
+==================
+
+A detailed installation instruction is provided in the chapter 5 of the 
+documentation (IFOS/doc/manual_IFOS.pdf). If the manual is not compiled,
+please use the script IFOS/doc/compile_LaTeX_manual.sh
+
+To compile IFOS2D a MAKEFILE is available in the IFOS/par directory. To
+use the MAKEFILE type
+
+make
+
+in the IFOS/par directory. The MAKEFILE compiles the additional libaries
+
+lib cseife
+lib stfinv
+lib aff
+lib fourier
+
+before compiling the main program IFOS.
+
+-------------------------------------------
+
+There are several known dependencies:
+
+- GCC / ICC
+- OpenMPI / Intel MPF
+- fftw3
+- stdc++
+- math library (libm.a)
+
+-------------------------------------------
+
+Systems/environments the code was already successfully build on:
+
+- Linux 2.6.31.14-0.6-desktop x86_64 
+- MacOSX 10.11.1 with OpenMPI 1.10.0 and gcc-Version 5.1.0
+
+-------------------------------------------

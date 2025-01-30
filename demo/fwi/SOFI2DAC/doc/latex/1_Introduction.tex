@@ -1,0 +1,33 @@
+
+
+%------------------------------------------------------------------------------------------------%
+
+\chapter{Introduction}
+
+%------------------------------------------------------------------------------------------------%
+
+The aim of Full Waveform Tomography (FWT) is to estimate the elastic material parameters in the underground. This can be achieved by minimizing the misfit energy 
+between the modeled and field data using a gradient optimization approach. Because the FWT uses the full information content of each seismogram, structures below the seismic 
+wavelength can be resolved. This is a tremendous improvement in resolution compared to travel time tomography (\cite{prattgao:2002}).\\ 
+The concept of full waveform tomography was originally developed by Albert Tarantola in the  1980s  for the acoustic, isotropic elastic, and 
+viscoelastic case (\cite{tarantola:84a,tarantola:84,tarantola:86,tarantola:88}). First numerical implementations were realized at the end of the 1980s 
+(\cite{gauthier:86}, \cite{mora:87}, \cite{pica:90}), but due to limited computational resources, the application was restricted to simple 
+2D synthetic test problems and small near offset datasets. At the begining of the 1990s the original time domain formulation was transfered 
+to a robust frequency domain approach (\cite{prattworth:90}, \cite{pratt:90}). With the increasing performance of supercomputers moderately 
+sized problems could be inverted with frequency domain approaches.\\ A spectacular result to prove the application of acoustic FWT on laboratory scale was presented by \cite{pratt:99} for ultrasonic tomography measurements on a simple block model. In a numerical blind test \cite{brenders:2007} achieved a very good agreement between their inversion result and the unkown true P-wave velocity model. The parallelization and performance optimizations of the frequency domain approach (see e.g. \cite{sourbier:09}, \cite{sourbier:09b}) lead to a wide range of acoustic FWT applications for problems on different scales, from the global scale, crustal scale over engineering and near surface scale, down to laboratory scale (\cite{pratt:2004}).\\ Beside the application to geophysical problems, the acoustic FWT is also used to improve the resolution in medical cancer diagnostics (\cite{pratt:2007}). However, all these examples are restricted to the inversion of the acoustic material parameters: P-wave velocity, density and additionally the viscoacoustic damping $\rm{Q_p}$ for the P-waves. Even today the independent 2D FWT of all three isotropic elastic material parameters is still a challenge. Most elastic approaches invert for P-wave velocity only and use empirical relationships to deduce the distribution of S-wave velocity and density (\cite{shipp:02,sheen:06}). Recently some authors also investigated the independent multiparameter FWT in the frequency domain (\cite{choi:2008,choi:2008a,brossier:2009}).  
+
+In order to extract information about the structure and composition of the crust from seismic observations, it is necessary to be able to predict how seismic wavefields are affected by complex structures.
+Since exact analytical solutions to the wave equations do not exist for most subsurface configurations, the solutions can be obtained only by numerical methods. For iterative calculations of synthetic seismograms with limited computer resources fast and accurate modeling methods are needed. 
+
+The FD modeling/inversion program IFOS2D (\textbf{I}nversion of \textbf{F}ull \textbf{O}bserved \textbf{S}eismograms), is based on the FD approach described by \cite{virieux:86} and \cite{levander:88}. The present program IFOS2D has the following extensions
+
+\begin{itemize}
+\item is efficently parallelized using domain decomposition with MPI (\cite{bohlen:02}),
+\item considers viscoelastic wave propagation effects like attenuation and dispersion
+(\cite{robertsson:94,blanch:95,bohlen:02}),
+\item employs higher order FD operators,
+\item applies Convolutional Perfectly Matched Layer boundary conditions at the edges of the numerical mesh (\cite{komatitsch:07}).
+\end{itemize}
+
+In the following sections, we give an extensive description of the theoretical background, the different input parameters and show a few benchmark modeling and inversion applications.
+

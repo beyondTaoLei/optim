@@ -1,0 +1,12 @@
+# this is <stfinvfourier_summary_usage.txt>
+# ----------------------------------------------------------------------------
+#
+Procedures in the Fourier domain
+--------------------------------
+Options and parameters in common for procedures in the Fourier domain:
+  fpow2              use power of two for number of coefficients
+  fdiv=d             use integer multiple of d for number of coefficients
+  fpad=f             padding factor
+  tshift=d           delay source correction filter wavelet by d (in seconds)
+  irtap=t1,t2,t3,t4  taper impulse response of correction filter
+# ----- END OF stfinvfourier_summary_usage.txt ----- 

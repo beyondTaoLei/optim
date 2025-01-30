@@ -1,0 +1,23 @@
+1000.0		27.0		0.0		5.0		1.0 	
+
+# Definition of (distributed) source positions: 
+# position, time-delay, centre frequency, and amplitude
+#
+# (comment line is indicated by # or % as first character)
+#
+# Symbols: 
+# XSRC= x-coordinate of source point [meter]
+# YSRC= y-coordinate of source point [meter] (vertical direction)
+# TD= excitation time (time-delay) for source node [s]
+# FC= centre frequency of source signal [Hz]
+# AMP= maximum amplitude of source signal
+#
+# Optional:
+# SOURCE_AZIMUTH= if SOURCE_TYPE is 4, source_azimuth is 
+#                 the angle between the y- and x-direction
+# SOURCE_TYPE= if source_type is set here, the value SOURCE_TYPE
+#	       in the input file is ignored.
+#
+# Parameters for each source node (one source node per line):
+#
+# XSRC	YSRC	TD	FC	AMP	SOURCE_AZIMUTH	SOURCE_TYPE

@@ -1,0 +1,69 @@
+{\color{blue}\begin{verbatim}
+#-----------------------------------------------------------------
+#      JSON PARAMETER FILE FOR IFOS2D
+#-----------------------------------------------------------------
+# description:
+# description/name of the model: model grid created by ../genmod/2layer.c
+#
+
+{
+"Domain Decomposition" : "comment",
+			"NPROCX" : "4",
+			"NPROCY" : "2",
+
+"FD order" : "comment",
+			"FDORDER" : "2",
+			"MAXRELERROR" : "0",
+
+"2-D Grid" : "comment",
+			"NX" : "500",
+			"NY" : "100",
+			"DH" : "0.2",
+
+"Time Stepping" : "comment",
+			"TIME" : "0.5",
+			"DT" : "5.0e-05",
+
+"Source" : "comment",
+			"SOURCE_SHAPE" : "4",
+			"SIGNAL_FILE" : "./ormsby.dat",
+			
+			"SOURCE_TYPE" : "3",
+			
+			"SOURCE_FILE" : "./source/sources.dat",
+			"RUN_MULTIPLE_SHOTS" : "1",
+
+"Model" : "comment",
+			"READMOD" : "0",
+			"MFILE" : "model/model_Test",
+
+"Free Surface" : "comment",
+			"FREE_SURF" : "1",
+
+"PML Boundary" : "comment",
+			"FW" : "20",
+			"VPPML" : "600.0",
+			"FPML" : "31.25",
+			"BOUNDARY" : "0",
+			"npower" : "4.0",
+			"k_max_PML" : "8.0",
+
+"Receiver" : "comment",
+			"SEISMO" : "1",
+			"READREC" : "1",
+			"REC_FILE" : "./receiver/receiver.dat",
+			"REFRECX, REFRECY" : "0.0 , 0.0",
+			"XREC1, YREC1" : "6.0 , 0.2",
+			"XREC2, YREC2" : "93.0 , 0.2",
+			"NGEOPH" : "80",
+
+"Seismograms" : "comment",
+			"SEIS_FORMAT" : "1",
+			"SEIS_FILE" : "su/IFOS",
+
+
+"General inversion parameters" : "comment",
+			"PARAMETERIZATION" : "1",
+			"FORWARD_ONLY" : "10",
+}
+\end{verbatim}}
