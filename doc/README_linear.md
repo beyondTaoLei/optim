@@ -10,10 +10,9 @@ For convenience, the parameters of the linear inverse algorithms are organized i
   ```sh
   'Program path'      :'comment',
   'optimroot'         :'/path/to/software/optim',   # path to optim package
-
   ```
   **Parameters**
-  - ***optimroot: string*** 
+  - ***optimroot: string***   
   The root path of the optimization toolbox codes. 
 
 ### 2. File path information
@@ -29,19 +28,19 @@ For convenience, the parameters of the linear inverse algorithms are organized i
   'fwgtd'             :'list/wgtd.npz',
   ```
   **Parameters**
-  - ***fmod: input&output, string***
+  - ***fmod: input&output, string***  
     The path for storing the current model, where the data is saved in a 32-bit floating-point binary file, with a shape of (M, 1). The optimization module will read the model using *numpy.fromfile(fmod, np.float32)*. If the inversion target contains multiple parameters, these parameters need to be merged into a single vector for current package version.
-  - ***fmodref: input, string***
+  - ***fmodref: input, string***  
     Similar to ***fmod***, but the associated model is used as the reference model when the inversion seeks the smoothest model (***modeltype***=3).
-  - ***fcost: output, string***
+  - ***fcost: output, string***  
     The path for storing the misfit function, where the data is saved in *ASCII* floating-point format.
-  - ***fdiff: output, string***
+  - ***fdiff: output, string***  
     The path for storing the measurement difference, where the data is saved in *ASCII* floating-point format, with a shape of (N, 1).
-  - ***fsensmat: output, string***
+  - ***fsensmat: output, string***  
     The path for storing the sensitivity matrix, where the data is saved as a sparse matrix with a shape of (N, M).
-  - ***fwgtm: optional input, string***
+  - ***fwgtm: optional input, string***  
     The path for storing the model weighting, where the data is saved as a compressed archive file in the format *.npz*. The data is a sparse diagonal matrix with a shape of (M, M).
-  - ***fwgtd: optional input, string***
+  - ***fwgtd: optional input, string***  
     The path for storing the data weighting, where the data is saved as a compressed archive file in the format *.npz*. The data is a sparse diagonal matrix with a shape of (N, N).
 
 ### 3. Descent direction module
@@ -58,15 +57,15 @@ For convenience, the parameters of the linear inverse algorithms are organized i
   'lambda0'           :10000.0,                        
   ```
   **Parameters**
-  - ***modeltype: int***
+  - ***modeltype: int***  
     The desired model type one may look for, 1: the smoothest model, 2: the flattest model, 3: the smallest perturbation model.
-  - ***descent_type: int***
+  - ***descent_type: int***  
     The descent perturbation type when solving the linear equation. 1 indicates the absolute perturbation; 2 indicates the relative perturbation. 
-  - ***precond: optional, int***
+  - ***precond: optional, int***  
     Whether to apply a preconditioning operator for the linear conjugate gradient method. 1 means yes; 0 means no.
-  - ***niter_inner_max: int***
+  - ***niter_inner_max: int***  
     The maximum number of iterations for **PLCG** loop.
-  - ***lambda0: float***
+  - ***lambda0: float***  
     The regularization parameter is used to balance the data misfit and model misfit. The users typically need to make numerous attempts to identify the optimal parameters.
 
 #### 3.2 LSQR method
@@ -79,13 +78,13 @@ For convenience, the parameters of the linear inverse algorithms are organized i
   'lambda0'           :10000.0,                        
   ```
   **Parameters**
-  - ***modeltype: int***
+  - ***modeltype: int***  
     The desired model type one may look for, 1: the smoothest model, 2: the flattest model, 3: the smallest perturbation model.
-  - ***descent_type: int***
+  - ***descent_type: int***  
     The descent perturbation type when solving the linear equation. 1 indicates the absolute perturbation; 2 indicates the relative perturbation. 
-  - ***niter_inner_max: int***
+  - ***niter_inner_max: int***  
     The maximum number of iterations for **LSQR** loop.
-  - ***lambda0: float***
+  - ***lambda0: float***  
     The regularization parameter is used to balance the data misfit and model misfit. The users typically need to make numerous attempts to identify the optimal parameters.
 
 ### 4. model update module
@@ -99,7 +98,7 @@ For convenience, the parameters of the linear inverse algorithms are organized i
   'niter_max'         :30
   ```
   **Parameters**
-  - ***iter0: int***
+  - ***iter0: int***  
     The initial iteration number at the current inversion stage/phase.
-  - ***niter_max: int***
+  - ***niter_max: int***  
     The maximum number of iterations, for future design.

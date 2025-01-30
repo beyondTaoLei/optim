@@ -117,7 +117,7 @@ In this section, we will discuss how to set the parameters in the configuration 
   ```
   
   **Parameters**
-  - ***optimroot: string*** 
+  - ***optimroot: string***       
   The root path to the optimization toolbox codes. 
 
 ### 3.2 File path information
@@ -133,11 +133,11 @@ In this section, we will discuss how to set the parameters in the configuration 
   'fvctr'             :'FD/vctr.bin'
   ```
   **Parameters**
-  - ***fmod: string***
+  - ***fmod: string***    
     The path for storing the current model, where the data is saved in a 32-bit floating-point binary file.
-  - ***fcost: string***
+  - ***fcost: string***    
     The path for storing the misfit function, where the data is saved in *ASCII* floating-point type.
-  - ***fgrad: string***
+  - ***fgrad: string***    
     The path for storing the gradient, where the data is saved in a 32-bit floating-point binary file.
   - ***fhess: string, optional***
     The path for storing the Hessian vector product, where the data is saved in a 32-bit floating-point binary file, and is only necessary for the truncated Newton method.
@@ -154,7 +154,7 @@ In this section, we will discuss how to set the parameters in the configuration 
   'powell'            :0                 
   ```
   **Parameters**
-  - ***powell: int***
+  - ***powell: int***  
     Whether to check the Powell restart condition, where 1 means the code will check this condition, while 0 means it will not.
 
   #### l-BFGS method
@@ -164,7 +164,7 @@ In this section, we will discuss how to set the parameters in the configuration 
   'l'                 :5
   ```
   **Parameters**
-  - ***l: int***
+  - ***l: int***  
     The number of the most recent correction pairs $\{s_k, y_k\}$. Users can specify the number *l* according to the degree of complexity of the inverse problem. It is suggested to be less than 10.
   
   #### Truncated Newton (TRN) method
@@ -186,28 +186,28 @@ In this section, we will discuss how to set the parameters in the configuration 
   'eta'               :0.0,               
   ```
   **Parameters**
-  - ***conv_CG: int***
+  - ***conv_CG: int***  
     The initial status for the inner loop. The value 0 is required when you update the configuration JSON file using the script **S0_prepare.py**.
 
-  - ***niter_max_CG: int***
+  - ***niter_max_CG: int***  
     The maximum number of inner LCG loop, suggested to be about 10-12 for large-scale nonlinear inverse problems.
-  - ***flag_singularity: int*** 
+  - ***flag_singularity: int***   
     Whether to perform the singularity test. Set to 1 for yes, and 0 for no.
-  - ***flag_negative: int*** 
+  - ***flag_negative: int***   
     Whether to perform the negative curvature test. The values can be 1 to perform the negative curvature test, 2 to perform the strong negative curvature test, or 0 to not perform any curvature test.
-  - ***flag_truncation: int*** 
+  - ***flag_truncation: int***   
     Whether to perform the truncated test. The values can be 1 to perform the truncation test based on residuals, or 0 to not perform the test.
-  - ***flag_min_res: int*** 
+  - ***flag_min_res: int***   
     Whether to replace the descent direction by the one when the residual of the Newton equation is at a minimum. The values can be 1 to perform the replacement, or 0 to not perform the replacement.
-  - ***pro_sing: float*** 
+  - ***pro_sing: float***   
     The threshold $\varsigma$ for the singularity test. The suggested value is 1.0E-10.
-  - ***pro_curv: float***
+  - ***pro_curv: float***  
     The threshold $\delta$ for the negative curvature test (*flag_negative* = 1). The suggested value is 1.0E-10.
-  - ***pro_trun: float*** 
+  - ***pro_trun: float***   
     The threshold $c_q$ for the truncation test. The suggested value is 0.5.
-  - ***eta_update: int*** 
+  - ***eta_update: int***   
    Whether to perform and update the forcing term by Eisenstat and Walker (1994) before the inner LCG loop. The values can be 1 to check and update the *eta* during the inversion cycle, or 0 to not check this forcing term.
-  - ***eta: float***
+  - ***eta: float***  
     Useful when *eta_update* is set to 1. The initial value is suggested to be 0.0~1.0.
 
 ### 3.4 Model update module
@@ -224,21 +224,21 @@ In this section, we will discuss how to set the parameters in the configuration 
   'mod_ub'            :5000                  
   ```
   **Parameters**
-  - ***try_old_sl: int***  
+  - ***try_old_sl: int***    
     For some optimization methods, adjacent iterations have similar step lengths and descent directions. The optimal step length from the last iteration is an ideal test step length for the current iteration. *try_old_sl* indicates whether to use the optimal step length from the last iteration for step length estimation. 1 means yes; 0 means no.
-  - ***max_m0: float*** 
+  - ***max_m0: float***   
     The estimated maximum value of inversion parameters, which is useful for calculating the model update.
-  - ***eps_scale: float***  
+  - ***eps_scale: float***    
     The percentage of the model update relative to the model. If *eps_scale* > 0, the descent direction will be scaled to $eps\_scale*\frac{max\_m0}{max(p_k)}$; if *eps_scale* < 0, no scaling factor is applied to the descent direction. Instead, the user can apply the scaling factor to the gradient.
-  - ***alpha_lb: float***
+  - ***alpha_lb: float***  
     Lower limit of step length, suggested to be in the range 0 < $alpha\_lb$ < 1.
-  - ***alpha_ub: float***
+  - ***alpha_ub: float***  
     Upper limit of step length, suggested to be in the range 1 < $alpha\_ub$ < 10.
-  - ***mod_limits: int***
+  - ***mod_limits: int***  
     Whether to check the bounds of model value. 1 means yes; 0 means no.
-  - ***mod_lb: float***  
+  - ***mod_lb: float***    
     Lower limit of model value, set according to the prior information of the model.
-  - ***mod_ub: float***  
+  - ***mod_ub: float***    
     Upper limit of model value, set according to the prior information of the model.
 
 ### 3.5 Inversion loop
@@ -249,8 +249,8 @@ In this section, we will discuss how to set the parameters in the configuration 
   'niter_max'         :30
   ```
   **Parameters**
-  - ***iter0: int***
+  - ***iter0: int***  
     The initial iteration number at the current inversion stage/phase.
-  - ***niter_max: int***
+  - ***niter_max: int***  
     The maximum number of iterations, for future design.
 

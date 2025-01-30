@@ -206,7 +206,7 @@ In this section, we will discribe how to set the parameters in the configuration
   'optimroot'         :'/path/to/software/optim',
   ```
   **Parameters**
-  - ***optimroot: string*** 
+  - ***optimroot: string***   
   The root path to the optimization toolbox codes. 
 
 ### 4.2 File path information
@@ -226,27 +226,27 @@ In this section, we will discribe how to set the parameters in the configuration
   'fwgtd'             :'list/wgtd.npz',           # optim needs
   ```
   **Parameters**
-  - ***fstn: input, string***
+  - ***fstn: input, string***  
     The path for storing the station information, where the data is saved in *csv* format. The key 'station' in the header indicates the station name, while 'x', 'y' and 'z' indicate the coordinates of the station, and 'ix', 'iy' and 'iz' indicate the grid index of the station.
-  - ***fperiods: input, string***
+  - ***fperiods: input, string***  
     The path for storing the measurement periods, where the data is saved in *csv* format. The key 'phase' in the header indicates the period index, while 'T0' indicates the measurement period. Note that the period must be increasing.
-  - ***fmodfd: input&output, string***
+  - ***fmodfd: input&output, string***  
     The path for storing the current vs model, where the data is saved in a 32-bit floating-point binary file. The input data is arranged in *column-major* order, with the coordinate origin at the top-left corner. The x-axis extends to the right, and the y-axis extends downward. Note that, the associated vp and density models have also to be provided, named with the suffixes .vp and .rho, respectively.
-  - ***fmodfdref: optional input, string***
+  - ***fmodfdref: optional input, string***  
     Similar to ***fmodfd***, but the associated model is used as the reference model when the inversion seeks the smoothest model (***modeltype***=3).
-  - ***fmod: output, string***
+  - ***fmod: output, string***  
     The path for storing the resampled output of the model is within the file ***fmodfd***, with a shape of (M, 1).
-  - ***fmodref: output, string***
+  - ***fmodref: output, string***  
     The path for storing the resampled output of the model is within the file ***fmodfdref***, with a shape of (M, 1).
-  - ***fcost: output, string***
+  - ***fcost: output, string***  
     The path for storing the misfit function, where the data is saved in *ASCII* floating-point type.
-  - ***fdiff: output, string***
+  - ***fdiff: output, string***  
     The path for storing the measurement difference, where the data is saved in *ASCII* floating-point format, with a shape of (N, 1).
-  - ***fsensmat: output, string***
+  - ***fsensmat: output, string***  
     The path for storing the sensitivity matrix, where the data is saved as a sparse matrix with a shape of (N, M).
-  - ***fwgtm: optional input, string***
+  - ***fwgtm: optional input, string***  
     The path for storing the model weighting, where the data is saved as a compressed archive file in the format *.npz*. The data is a sparse diagonal matrix with a shape of (M, M).
-  - ***fwgtd: optional input, string***
+  - ***fwgtd: optional input, string***  
     The path for storing the data weighting, where the data is saved as a compressed archive file in the format *.npz*. The data is a sparse diagonal matrix with a shape of (N, N).
 
 ### 4.3 Forward modeling module
@@ -264,23 +264,23 @@ In this section, we will discribe how to set the parameters in the configuration
   'incxyz'            :[1, 10, 1],
   ```
   **Parameters**
-  - ***mpiexep: int***
+  - ***mpiexep: int***  
     The path to Python MPI parallel launcher.
-  - ***algo: int***
+  - ***algo: int***  
     The algorithm to use for computation of Rayleigh-wave dispersion, *dunkin* and *fast-delta* is supported by the package *disba*.
-  - ***wavetype: int***
+  - ***wavetype: int***  
     The wave type, one can specify the wave type with *love* or *rayleigh*.
-  - ***maxmode: int***
+  - ***maxmode: int***  
     The maximum modes of the dispersion measurements, 0 means the fundamental mode, 1 means the first higher mode and so on.
-  - ***ncores: int***
+  - ***ncores: int***  
     The number of cores for the calculation of dispersion curve and sensitivity kernel, and we implement the calculation with MPI processors.
-  - ***nxyzfd: list of int***
+  - ***nxyzfd: list of int***  
     The number of grid points in the x-, y- and z-directions for forward modeling, respectively.
-  - ***oxyzfd: list of float***
+  - ***oxyzfd: list of float***  
     The original coordinates of the input model in the x-, y- and z-directions for forward modeling, respectively.
-  - ***dxyzfd: list of float***
+  - ***dxyzfd: list of float***  
     The grid spacing of the input model in the x-, y- and z-directions for forward modeling, respectively.
-  - ***incxyz: list of int***
+  - ***incxyz: list of int***  
     The sampling interval number in the x-, y- and z-directions, respectively, for saving the sensitivity matrix.
 
 ### 4.4 Descent direction module
@@ -294,15 +294,15 @@ In this section, we will discribe how to set the parameters in the configuration
   'lambda0'           :6.0e-3,        # optim needs                 
   ```
   **Parameters**
-  - ***modeltype: int***
+  - ***modeltype: int***  
     The desired model type one may look for, 1: the smoothest model, 2: the flattest model, 3: the smallest perturbation model.
-  - ***descent_type: int***
+  - ***descent_type: int***  
     The descent perturbation type when solving the linear equation. 1 indicates the absolute perturbation; 2 indicates the relative perturbation. 
-  - ***precond: optional, int***
+  - ***precond: optional, int***  
     Whether to apply a preconditioning operator for the linear conjugate gradient method. 1 means yes; 0 means no.
-  - ***niter_inner_max: int***
+  - ***niter_inner_max: int***  
     The maximum number of iterations for **PLCG** or **LSQR** loop.
-  - ***lambda0: float***
+  - ***lambda0: float***  
     The regularization parameter is used to balance the data misfit and model misfit. The users typically need to make numerous attempts to identify the optimal parameters.
 
 ### 4.5 Model update module
@@ -316,15 +316,15 @@ In this section, we will discribe how to set the parameters in the configuration
   'mod_ub'            :5000,                      
   ```
   **Parameters**
-  - ***eps_scale: float***
+  - ***eps_scale: float***  
     The percentage by which the model is updated relative to its current state.
-  - ***smooth_size: list of float*** 
+  - ***smooth_size: list of float***   
     The smoothing size in the x, y and z directions for the descent direction, measured in meters.
-  - ***mod_limits: int***
+  - ***mod_limits: int***  
     Whether to check the bounds of model value. 1 means yes; 0 means no.
-  - ***mod_lb: float***  
+  - ***mod_lb: float***    
     Lower limit of model value, set according to the prior information of the model.
-  - ***mod_ub: float***  
+  - ***mod_ub: float***    
     Upper limit of model value, set according to the prior information of the model.
 
 ### 4.6 Inversion loop
@@ -340,19 +340,19 @@ In this section, we will discribe how to set the parameters in the configuration
   'pro3'              :0.01,
   ```
   **Parameters**
-  - ***abort: int***
+  - ***abort: int***  
     The initial status for the inverse workflow. The value 0 is required when updating the configuration JSON file using the script **S0_prepare.py**; the value 1 indicates that one abort criterion has been met.
-  - ***iter0: int***
+  - ***iter0: int***  
     The initial iteration number for the current inversion stage/phase.
-  - ***niter_min: int***
+  - ***niter_min: int***  
     The minimum number of iterations.
-  - ***niter_max: int***
+  - ***niter_max: int***  
     The maximum number of iterations, for future design.
-  - ***pro: int***
+  - ***pro: int***  
     The convergence threshold. The inversion will terminate when the relative reduction in the misfit function $\frac{E_{i-2}-E_{i}}{E_{i-2}}$ falls below this threshold, where $E_{i}$ means the misfit function at *i*th iteration.
-  - ***pro2: int***
+  - ***pro2: int***  
     The slope convergence threshold. The inversion will terminate when the change rate in the misfit function slope $\frac{k_{i}}{k_{0}}$ falls below this threshold, where $k_{i}$ means the misfit function slope at *i*th iteration.
-  - ***pro3: int***
+  - ***pro3: int***  
     The average convergence threshold. The inversion will terminate when the average value of the misfit function over nearby iterations $\frac{ave_{i}}{ave_{0}}$ falls below this threshold, where $ave_{i}$ means the average of misfit function around *i*th iteration.
 
 ## 5. Run nonlinear inverse workflow
@@ -421,7 +421,7 @@ In this section, we will discribe how to set the parameters in the configuration
   'optimroot'         :'/path/to/software/optim',
   ```
   **Parameters**
-  - ***optimroot: string*** 
+  - ***optimroot: string***   
   The root path to the optimization toolbox codes. 
 
 ### 6.2 File path information
@@ -438,21 +438,21 @@ In this section, we will discribe how to set the parameters in the configuration
   'fvctr'             :'list/vctr.bin',       # optim needs
   ```
   **Parameters**
-  - ***fstn: input, string***
+  - ***fstn: input, string***  
     The path for storing the station information, where the data is saved in *csv* format. The key 'station' in the header indicates the station name, while 'x', 'y' and 'z' indicate the coordinates of the station, and 'ix', 'iy' and 'iz' indicate the grid index of the station.
-  - ***fperiods: input, string***
+  - ***fperiods: input, string***  
     The path for storing the measurement periods, where the data is saved in *csv* format.
-  - ***fmodfd: input&output, string***
+  - ***fmodfd: input&output, string***  
     The path for storing the current vs model, where the data is saved in a 32-bit floating-point binary file. The input data is arranged in *column-major* order, with the coordinate origin at the top-left corner. The x-axis extends to the right, and the y-axis extends downward. Note that, the associated vp and density models have also to be provided, named with the suffixes .vp and .rho, respectively.
-  - ***fmod: output, string***
+  - ***fmod: output, string***  
     The path for storing the resampled output of the model is within the file ***fmodfd***, with a shape of (M, 1). For this study, we do not resample the grids during calculating the gradient.
-  - ***fcost: output, string***
+  - ***fcost: output, string***  
     The path for storing the misfit function, where the data is saved in *ASCII* floating-point type.
-  - ***fgrad: output, string***
+  - ***fgrad: output, string***  
     The path for storing the gradient, where the data is saved in a 32-bit floating-point binary file.
-  - ***fhess: optional output, string***
+  - ***fhess: optional output, string***  
     The path for storing the Hessian vector product, where the data is saved in a 32-bit floating-point binary file, and is only necessary for the truncated Newton method.
-  - ***fvctr: optional output, string***
+  - ***fvctr: optional output, string***  
     The path for storing an arbitrary vector in the LCG algorithm, where the data is saved in a 32-bit floating-point binary file, and is only necessary for the truncated Newton method.
 
 ### 6.3 Forward modeling module
@@ -469,21 +469,21 @@ In this section, we will discribe how to set the parameters in the configuration
   'dxyzfd'            :[500.0, 500.0, 500.0],
   ```
   **Parameters**
-  - ***mpiexep: int***
+  - ***mpiexep: int***  
     The path to Python MPI parallel launcher.
-  - ***algo: int***
+  - ***algo: int***  
     The algorithm to use for computation of Rayleigh-wave dispersion, *dunkin* and *fast-delta* is supported by the package *disba*.
-  - ***wavetype: int***
+  - ***wavetype: int***  
     The wave type, one can specify the wave type with *love* or *rayleigh*.
-  - ***maxmode: int***
+  - ***maxmode: int***  
     The maximum modes of the dispersion measurements, 0 means the fundamental mode, 1 means the first higher mode and so on.
-  - ***ncores: int***
+  - ***ncores: int***  
     The number of cores for the calculation of dispersion curve and sensitivity kernel, and we implement the calculation with MPI processors.
-  - ***nxyzfd: list of int***
+  - ***nxyzfd: list of int***  
     The number of grid points in the x-, y- and z-directions for forward modeling, respectively.
-  - ***oxyzfd: list of float***
+  - ***oxyzfd: list of float***  
     The original coordinates of the input model in the x-, y- and z-directions for forward modeling, respectively.
-  - ***dxyzfd: list of float***
+  - ***dxyzfd: list of float***  
     The grid spacing of the input model in the x-, y- and z-directions for forward modeling, respectively.
 
 ### 6.4 Gradient calculation module
@@ -495,11 +495,11 @@ In this section, we will discribe how to set the parameters in the configuration
   'EPSILON'           :0.05,
   ```
   **Parameters**
-  - ***smooth_size: list of float*** 
+  - ***smooth_size: list of float***   
     The smoothing size in the x, y and z directions for the descent direction, measured in meters.
-  - ***precond: int*** 
+  - ***precond: int***   
     Whether to apply a preconditioning operator for the gradient. 1 means yes; 0 means no.
-  - ***EPSILON: float*** 
+  - ***EPSILON: float***   
     The water level to stabilize the preconditioning operator, suggested in 0~0.05.
 
 ### 6.5 Descent direction module
@@ -515,7 +515,7 @@ In this section, we will discribe how to set the parameters in the configuration
   'powell'            :0                 
   ```
   **Parameters**
-  - ***powell: int***
+  - ***powell: int***  
     Whether to check the Powell restart condition, where 1 means the code will check this condition, while 0 means it will not.
 
   #### 6.5.3 l-BFGS method
@@ -525,7 +525,7 @@ In this section, we will discribe how to set the parameters in the configuration
   'l'                 :5
   ```
   **Parameters**
-  - ***l: int***
+  - ***l: int***  
     The number of the most recent correction pairs $\{s_k, y_k\}$. Users can specify the number *l* according to the degree of complexity of the inverse problem. It is suggested to be less than 10.
   
   #### 6.5.4 Truncated Newton (TRN) method
@@ -547,27 +547,27 @@ In this section, we will discribe how to set the parameters in the configuration
   'eta'               :0.0,               
   ```
   **Parameters**
-  - ***conv_CG: int***
+  - ***conv_CG: int***  
     The initial status for the inner loop. The value 0 is required when you update the configuration JSON file using the script **S0_prepareNL.py**.
-  - ***niter_max_CG: int***
+  - ***niter_max_CG: int***  
     The maximum number of inner LCG loop, suggested to be about 10-12 for large-scale nonlinear inverse problems.
-  - ***flag_singularity: int*** 
+  - ***flag_singularity: int***   
     Whether to perform the singularity test. Set to 1 for yes, and 0 for no.
-  - ***flag_negative: int*** 
+  - ***flag_negative: int***   
     Whether to perform the negative curvature test. The values can be 1 to perform the negative curvature test, 2 to perform the strong negative curvature test, or 0 to not perform any curvature test.
-  - ***flag_truncation: int*** 
+  - ***flag_truncation: int***   
     Whether to perform the truncated test. The values can be 1 to perform the truncation test based on residuals, or 0 to not perform the test.
-  - ***flag_min_res: int*** 
+  - ***flag_min_res: int***   
     Whether to replace the descent direction by the one when the residual of the Newton equation is at a minimum. The values can be 1 to perform the replacement, or 0 to not perform the replacement.
-  - ***pro_sing: float*** 
+  - ***pro_sing: float***   
     The threshold $\varsigma$ for the singularity test. The suggested value is 1.0E-10.
-  - ***pro_curv: float***
+  - ***pro_curv: float***  
     The threshold $\delta$ for the negative curvature test (*flag_negative* = 1). The suggested value is 1.0E-10.
-  - ***pro_trun: float*** 
+  - ***pro_trun: float***   
     The threshold $c_q$ for the truncation test. The suggested value is 0.5.
-  - ***eta_update: int*** 
+  - ***eta_update: int***   
    Whether to perform and update the forcing term by Eisenstat and Walker (1994) before the inner LCG loop. The values can be 1 to check and update the *eta* during the inversion cycle, or 0 to not check this forcing term.
-  - ***eta: float***
+  - ***eta: float***  
     Useful when *eta_update* is set to 1. The initial value is suggested to be 0.0~1.0.
 
 ### 6.6 Model update module
@@ -584,21 +584,21 @@ In this section, we will discribe how to set the parameters in the configuration
   'mod_ub'            :5000                  
   ```
   **Parameters**
-  - ***try_old_sl: int***  
+  - ***try_old_sl: int***    
     For some optimization methods, adjacent iterations have similar step lengths and descent directions. The optimal step length from the last iteration is an ideal test step length for the current iteration. *try_old_sl* indicates whether to use the optimal step length from the last iteration for step length estimation. 1 means yes; 0 means no.
-  - ***max_m0: float*** 
+  - ***max_m0: float***   
     The estimated maximum value of inversion parameters, which is useful for calculating the model update.
-  - ***eps_scale: float***  
+  - ***eps_scale: float***    
     The percentage of the model update relative to the model. If *eps_scale* > 0, the descent direction will be scaled to $eps\_scale*\frac{max\_m0}{max(p_k)}$; if *eps_scale* < 0, no scaling factor is applied to the descent direction. Instead, the user can apply the scaling factor to the gradient.
-  - ***alpha_lb: float***
+  - ***alpha_lb: float***  
     Lower limit of step length, suggested to be in the range 0 < $alpha\_lb$ < 1.
-  - ***alpha_ub: float***
+  - ***alpha_ub: float***  
     Upper limit of step length, suggested to be in the range 1 < $alpha\_ub$ < 10.
-  - ***mod_limits: int***
+  - ***mod_limits: int***  
     Whether to check the bounds of model value. 1 means yes; 0 means no.
-  - ***mod_lb: float***  
+  - ***mod_lb: float***    
     Lower limit of model value, set according to the prior information of the model.
-  - ***mod_ub: float***  
+  - ***mod_ub: float***    
     Upper limit of model value, set according to the prior information of the model.
 
 ### 6.7 Inversion loop
@@ -614,17 +614,17 @@ In this section, we will discribe how to set the parameters in the configuration
   'pro3'              :0.01,
   ```
   **Parameters**
-  - ***abort: int***
+  - ***abort: int***  
     The initial status for the inverse workflow. The value 0 is required when updating the configuration JSON file using the script **S0_prepareNL.py**; the value 1 indicates that one abort criterion has been met.
-  - ***iter0: int***
+  - ***iter0: int***  
     The initial iteration number for the current inversion stage/phase.
-  - ***niter_min: int***
+  - ***niter_min: int***  
     The minimum number of iterations.
-  - ***niter_max: int***
+  - ***niter_max: int***  
     The maximum number of iterations, for future design.
-  - ***pro: int***
+  - ***pro: int***  
     The convergence threshold. The inversion will terminate when the relative reduction in the misfit function $\frac{E_{i-2}-E_{i}}{E_{i-2}}$ falls below this threshold, where $E_{i}$ means the misfit function at *i*th iteration.
-  - ***pro2: int***
+  - ***pro2: int***  
     The slope convergence threshold. The inversion will terminate when the change rate in the misfit function slope $\frac{k_{i}}{k_{0}}$ falls below this threshold, where $k_{i}$ means the misfit function slope at *i*th iteration.
-  - ***pro3: int***
+  - ***pro3: int***  
     The average convergence threshold. The inversion will terminate when the average value of the misfit function over nearby iterations $\frac{ave_{i}}{ave_{0}}$ falls below this threshold, where $ave_{i}$ means the average of misfit function around *i*th iteration.

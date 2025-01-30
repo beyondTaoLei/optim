@@ -187,7 +187,7 @@ In this section, we will discribe how to set the parameters in the configuration
 
   ```
   **Parameters**
-  - ***optimroot: string*** 
+  - ***optimroot: string***       
   The root path to the optimization toolbox codes. 
 
 ### 4.2 File path information
@@ -206,25 +206,25 @@ In this section, we will discribe how to set the parameters in the configuration
   'fwgtd'             :'list/wgtd.npz',                   # optim needs
   ```
   **Parameters**
-  - ***fsrc: input, string***
+  - ***fsrc: input, string***      
     The path for storing the source information, where the data is saved in *csv* format. The key 'station' in the header indicates the source name, while 'x' and 'y' indicate the coordinates of the source.
-  - ***fmodfd: input&output, string***
+  - ***fmodfd: input&output, string***      
     The path for storing the current model for traveltime calculation, where the data is saved in a 32-bit floating-point binary file. The input data is arranged in *column-major* order, with the coordinate origin at the top-left corner. The x-axis extends to the right, and the y-axis extends downward.
-  - ***fmodfdref: optional input, string***
+  - ***fmodfdref: optional input, string***      
     Similar to ***fmodfd***, but the associated model is used as the reference model when the inversion seeks the smoothest model (***modeltype***=3).
-  - ***fmod: output, string***
+  - ***fmod: output, string***      
     The path for storing the resampled output of the model is within the file ***fmodfd***, with a shape of (M, 1).
-  - ***fmodref: output, string***
+  - ***fmodref: output, string***    
     The path for storing the resampled output of the model is within the file ***fmodfdref***, with a shape of (M, 1).
-  - ***fcost: output, string***
+  - ***fcost: output, string***    
     The path for storing the misfit function, where the data is saved in *ASCII* floating-point type.
-  - ***fdiff: output, string***
+  - ***fdiff: output, string***    
     The path for storing the measurement difference, where the data is saved in *ASCII* floating-point format, with a shape of (N, 1).
-  - ***fsensmat: output, string***
+  - ***fsensmat: output, string***    
     The path for storing the sensitivity matrix, where the data is saved as a sparse matrix with a shape of (N, M).
-  - ***fwgtm: optional input, string***
+  - ***fwgtm: optional input, string***    
     The path for storing the model weighting, where the data is saved as a compressed archive file in the format *.npz*. The data is a sparse diagonal matrix with a shape of (M, M).
-  - ***fwgtd: optional input, string***
+  - ***fwgtd: optional input, string***    
     The path for storing the data weighting, where the data is saved as a compressed archive file in the format *.npz*. The data is a sparse diagonal matrix with a shape of (N, N).
 
 ### 4.3 Forward modeling module
@@ -238,15 +238,15 @@ In this section, we will discribe how to set the parameters in the configuration
   'incxy'             :[2, 2],
   ```
   **Parameters**
-  - ***ncores: int***
+  - ***ncores: int***  
     The number of cores for travel time calculation, We split the modeling tasks into **ncores** jobs and then submit them simultaneously using bash scripts.
-  - ***nxyfd: list of int***
+  - ***nxyfd: list of int***  
     The number of grid points in the x- and y-directions for forward modeling, respectively.
-  - ***oxyfd: list of float***
+  - ***oxyfd: list of float***  
     The original coordinates of the input model in the x- and y-directions for forward modeling, respectively.
-  - ***dxyfd: list of float***
+  - ***dxyfd: list of float***  
     The grid spacing of the input model in the x- and y-directions for forward modeling, respectively.
-  - ***incxy: list of int***
+  - ***incxy: list of int***  
     The sampling interval number in the x- and y-directions, respectively, for saving the sensitivity matrix.
 
 ### 4.4 Descent direction module
@@ -260,15 +260,15 @@ In this section, we will discribe how to set the parameters in the configuration
   'lambda0'           :10000.0,       # optim needs                
   ```
   **Parameters**
-  - ***modeltype: int***
+  - ***modeltype: int***  
     The desired model type one may look for, 1: the smoothest model, 2: the flattest model, 3: the smallest perturbation model.
-  - ***descent_type: int***
+  - ***descent_type: int***  
     The descent perturbation type when solving the linear equation. 1 indicates the absolute perturbation; 2 indicates the relative perturbation. 
-  - ***precond: optional, int***
+  - ***precond: optional, int***  
     Whether to apply a preconditioning operator for the linear conjugate gradient method. 1 means yes; 0 means no.
-  - ***niter_inner_max: int***
+  - ***niter_inner_max: int***  
     The maximum number of iterations for **PLCG** or **LSQR** loop.
-  - ***lambda0: float***
+  - ***lambda0: float***  
     The regularization parameter is used to balance the data misfit and model misfit. The users typically need to make numerous attempts to identify the optimal parameters.
 
 ### 4.5 Model update module
@@ -282,15 +282,15 @@ In this section, we will discribe how to set the parameters in the configuration
   'mod_ub'            :4800,                      
   ```
   **Parameters**
-  - ***eps_scale: float***
+  - ***eps_scale: float***  
     The percentage by which the model is updated relative to its current state.
-  - ***smooth_size: list of float*** 
+  - ***smooth_size: list of float***   
     The smoothing size in the x and y directions for the descent direction, measured in meters.
-  - ***mod_limits: int***
+  - ***mod_limits: int***  
     Whether to check the bounds of model value. 1 means yes; 0 means no.
-  - ***mod_lb: float***  
+  - ***mod_lb: float***    
     Lower limit of model value, set according to the prior information of the model.
-  - ***mod_ub: float***  
+  - ***mod_ub: float***    
     Upper limit of model value, set according to the prior information of the model.
 
 ### 4.6 Inversion loop
@@ -306,18 +306,18 @@ In this section, we will discribe how to set the parameters in the configuration
   'pro3'              :0.01,
   ```
   **Parameters**
-  - ***abort: int***
+  - ***abort: int***  
     The initial status for the inverse workflow. The value 0 is required when updating the configuration JSON file using the script **S0_prepare.py**; the value 1 indicates that one abort criterion has been met.
-  - ***iter0: int***
+  - ***iter0: int***  
     The initial iteration number for the current inversion stage/phase.
-  - ***niter_min: int***
+  - ***niter_min: int***  
     The minimum number of iterations.
-  - ***niter_max: int***
+  - ***niter_max: int***  
     The maximum number of iterations, for future design.
-  - ***pro: int***
+  - ***pro: int***  
     The convergence threshold. The inversion will terminate when the relative reduction in the misfit function $\frac{E_{i-2}-E_{i}}{E_{i-2}}$ falls below this threshold, where $E_{i}$ means the misfit function at *i*th iteration.
-  - ***pro2: int***
+  - ***pro2: int***  
     The slope convergence threshold. The inversion will terminate when the change rate in the misfit function slope $\frac{k_{i}}{k_{0}}$ falls below this threshold, where $k_{i}$ means the misfit function slope at *i*th iteration.
-  - ***pro3: int***
+  - ***pro3: int***  
     The average convergence threshold. The inversion will terminate when the average value of the misfit function over nearby iterations $\frac{ave_{i}}{ave_{0}}$ falls below this threshold, where $ave_{i}$ means the average of misfit function around *i*th iteration.
 
