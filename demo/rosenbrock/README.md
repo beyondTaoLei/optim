@@ -3,7 +3,7 @@
 >The [Rosenbrock function](https://en.wikipedia.org/wiki/Rosenbrock_function) is a non-convex function, introduced by Howard H. Rosenbrock in 1960, which is widely used by researchers to test mathematical optimization algorithms. This documentation aims to help users understand our implementation process for solving geophysical inverse problems. For large-scale inverse problems, you can refer to the full waveform inversion demo (fwi) included in our packages, which will guide you on how to organize the optimization workflow and submit jobs to an HPC cluster. The optimization toolbox [optim](https://github.com/beyondTaoLei/optim) has been developed by Tao Lei (leit@sustech.edu.cn) and Wei Zhang (zhangwei@sustech.edu.cn). If you encounter any issues while using this software, please do not hesitate to contact us.
 ***
 
-## 1. Demo structure
+## 0. Demo structure
 The root directory contains several key components essential for understanding and utilizing the provided resources. It includes this documentation, the workflow example (**case1**), the collection of main functions (**prob**), and some drawing scripts located in **plot**. 
 
 Most parameters will be set using the script **S0_prepare.py** within the workflow example(**case1**). The following directory tree presents the main structure for solving the Rosenbrock problem:
@@ -21,20 +21,39 @@ Most parameters will be set using the script **S0_prepare.py** within the workfl
 |   |-- plot_misfits_comp.py
 |   `-- plot_result.py
 `-- prob                        >>> main functions used in workflow
-    |-- my_Hv.py
-    |-- my_grad.py
     |-- my_misfit.py
+    |-- my_grad.py
+    |-- my_Hv.py
     |-- rosenbrock.py
     `-- update_optim.py
 
               Figure 1. The structure of Rosenbrock problem demo
 ```
 
+## 1. Configure environment
+
+To ensure that your software runs smoothly, you need to install the required Python libraries. Below are the steps to install *matplotlib* and other dependencies using *conda*:
+
+- Create a new environment (optional): It is a good practice to create and use a virtual environment to manage dependencies. Replace *myenv* with your desired environment name.
+  ```sh
+  conda create -n myenv
+  conda activate myenv
+  ```
+- Install dependencies: Use the following command to install the required libraries, such as *numpy*, and *matplotlib*.
+  ```sh
+  conda install -c conda-forge numpy matplotlib
+  ```
+- List installed libraries: To verify that the libraries are installed successfully, you can list the installed packages
+  ```sh
+  conda list
+  ```
+By following these steps, you ensure that all necessary packages are installed and your Python environment is set up properly.
+
 ## 2. Run inverse workflow
 
 - Specify the path to the Rosenbrock demo and name your project in the terminal:
   ```sh
-  demoroot=/software/optim/demo/rosenbrock
+  demoroot=/path/to/software/optim/demo/rosenbrock
   mkdir prj
   cd prj
   ```
@@ -43,7 +62,7 @@ Most parameters will be set using the script **S0_prepare.py** within the workfl
 - Modify the program path variables in the script **${demoroot}/case1/S0_prepare.py**  
   ```sh
   'Program path'      :'comment',
-  'optimroot'         :'/software/optim'          # path to optim package
+  'optimroot'         :'/path/to/software/optim',
   ```
 
 - Write the global parameters for the whole project:
@@ -94,12 +113,12 @@ In this section, we will discuss how to set the parameters in the configuration 
   Since we run all commands from the project root path, we need to define the location of the optimization toolbox. The following parameter is required:
   ```sh
   'Program path'      :'comment',
-  'optimroot'         :'/software/optim'
+  'optimroot'         :'/path/to/software/optim',
   ```
   
   **Parameters**
   - ***optimroot: string*** 
-  The root path of the optimization toolbox codes. 
+  The root path to the optimization toolbox codes. 
 
 ### 3.2 File path information
   The setting of file paths for *rosenbrock* problem is same as the general setting in nonlinear inverse algorithms, For the parameter settings of this module, please refer to the relevant parameter explanations in README_nonlinear.md.

@@ -52,9 +52,9 @@ optim={
     'max_m0'            :0.25,              #[IN] the maximum of initial model
     'alpha_lb'          :0.01,              #[IN] lower limit of steplength
     'alpha_ub'          :5,                 #[IN] upper limit of steplength
-    'mod_limits'        :0,                 #[IN] 1: check the bound of model value;0 no limit for model value
-    'mod_lb'            :1000,              #[IN] lower limit of model value
-    'mod_ub'            :5000,              #[IN] upper limit of model value
+    'mod_limits'        :0,                 #[IN] whether to check the bound of model value, 1: yes, 0: no
+    'mod_lb'            :1000,              #[IN] lower limit of model value if mod_limits=1
+    'mod_ub'            :5000,              #[IN] upper limit of model value if mod_limits=1
     'Inversion loop'    :'comment',
     'iter0'             :1,                 #[IN] the initial iteration at current inversion stage/phase
     'niter_max'         :200,               #[IN] maximum iterations, for future design
