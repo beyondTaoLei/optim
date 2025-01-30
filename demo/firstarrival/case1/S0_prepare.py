@@ -20,54 +20,57 @@ os.makedirs('log', exist_ok=True)
 os.makedirs('job', exist_ok=True)
 
 optim={
-    'submit'                :1,                         #[IN] 1: run inverison; 0: only generate inversion commands
-    'optimroot'             :'/home/tao/Nutstore_Files/works/optim', #[IN] software path
+    'Program path'          :'comment',
+    'optimroot'             :'/mnt/c/Users/90541/Documents/work/software/optim', #[IN] software path
     'Forward part'          :'comment',
-    'fmodfd'                :'model/inv/inv.vp',        #[IN] current model for forward modelling
-    'n2g'                   :680,                       #[IN] X- grid number of forward modeling              
-    'n1g'                   :155,                       #[IN] Y- grid number of forward modeling
-    'o2g'                   :0.0,                       #[IN] X- original coordinate of model in meter
-    'o1g'                   :0.0,                       #[IN] Y- original coordinate of model in meter
-    'd2g'                   :25.0,                      #[IN] X- spacing in meter
-    'd1g'                   :25.0,                      #[IN] Y- spacing in meter
     'ncores'                :8,                         #[IN] number of cores you can apply for modelling
-    'Diff sensmat part'     :'comment',
-    'inc2'                  :2,                         #[IN] X- grid sampling for sensitivity matrix
-    'inc1'                  :2,                         #[IN] Y- grid sampling for sensitivity matrix
-    'fevn_info'             :'list/eventinfo.csv',      #[IN] event list file
-    'fcost'                 :'list/fcost.dat',          #[OUT] misfit function
-    'fdiff'                 :'list/diff.dat',           #[OUT] differnece between observed and synthetic data for each pairs
-    'fsensmat'              :'list/sensmat.npz',        #[OUT] sensitivity matrix [G]
-    'Descent part lsqr'     :'comment',
-    'dim'                   :2,                         #[IN] dimension for current study
-    'modeltype'             :3,                         #[IN] 1:smoothest, 2:flattest, 3:smallest perturbation
-    'descent_type'          :1,                         #[IN] desecent with format of absolute value(1), percent vaule(2)
+    'fsrc'                  :'list/src.csv',            #[IN] event list file
+    'fmodfd'                :'model/inv/inv.vp',        #[IN] current model for forward modelling
+    'nxyfd'                 :[680, 155],                #[IN] X- and Y-dir. grid number of forward modeling
+    'oxyfd'                 :[0.0, 0.0],                #[IN] X- and Y-dir. original coordinate of model in meter
+    'dxyfd'                 :[25.0, 25.0],              #[IN] X- and Y-dir. spacing in meter
+    'incxy'                 :[2, 2],                    #[IN] X- and Y-dir. grid sampling for sensitivity matrix
+    'Descent part'          :'comment',
     'fmodfdref'             :'model/inv/ref.vp',        #[IN] reference model in forward modelling gird
-    'fmod'                  :'model/inv/inv_tomo.slowness',   #[OUT] current model [x] for tomography inversion
-    'fmodref'               :'model/inv/ref_tomo.slowness',   #[OUT] reference model mref, just define the file name
     'fwgtd'                 :'list/wgtd.npz',           #[IN] data weighting
     'fwgtm'                 :'list/wgtm.npz',           #[IN] model weighting
-    'percond'               :1,                         #[IN] preconditional operator for conjugate gradient.
+    'modeltype'             :3,                         #[IN] 1:smoothest, 2:flattest, 3:smallest perturbation
+    'descent_type'          :1,                         #[IN] desecent with format of absolute value(1), percent vaule(2)
+    'precond'               :1,                         #[IN] preconditional operator for conjugate gradient.
     'niter_inner_max'       :100,                       #[IN] maximum number of lsqr (or cg)
-    'lambda0'               :10000.0,                   #[IN] initial lambda for L-curve test, suggest which is not more than 1.0E18
-    'step'                  :2.0,                       #[IN] the ratio between the neighbor damping factor
-    'testmax'               :20,                        #[IN] the maximum test times
+    'lambda0'               :156.25,                    #[IN] lambda for regularization
     'Update part'           :'comment',
     'eps_scale'             :0.02,                      #[IN] step length in proportion
-    'smooth_size'           :'150.0:150.0',             #[IN] smooth size for descent direction, in meter (such as, 6*dxg:6*dyg)
-    'mod_limits'            :1,                         #[IN] 1: check the bound of model value;0 no limit for model value
-    'mod_lb'                :1500,                      #[IN] lower limit of model value in m/s
-    'mod_ub'                :4800,                      #[IN] upper limit of model value in m/s
+    'smooth_size'           :[150.0, 150.0],            #[IN] smooth size for descent direction, in meter (such as, 6*dxg:6*dyg)
+    'mod_limits'            :1,                         #[IN] whether to check the bound of model value, 1: yes, 0: no
+    'mod_lb'                :1500,                      #[IN] lower limit of model value if mod_limits=1
+    'mod_ub'                :4800,                      #[IN] upper limit of model value if mod_limits=1
     'Inversion loop'        :'comment',
+    'abort'                 :0,                         #[IN] intial stage phase
     'iter0'                 :1,                         #[IN] the initial iteration at current inversion stage/phase
+    'niter_min'             :20,                        #[IN] minimum iterations
     'niter_max'             :30,                        #[IN] maximum iterations, for future design
+    'pro'                   :0.01,                      #[IN] (Ei2 - Ei) / Ei2
+    'pro2'                  :0.01,                      #[IN] k2 / k1 
+    'pro3'                  :0.01,                      #[IN] average2 / average1 
 }
+optim['demoroot'] = os.path.dirname(os.path.dirname(__file__)) #.../firstarrival
 optim['prjroot'] = os.getcwd() # project path
 optim['fdir'] = fdir
-optim['n1'] = len(np.arange(optim['n1g'])[::optim['inc1']])
-optim['n2'] = len(np.arange(optim['n2g'])[::optim['inc2']])
-optim['d1'] = optim['d1g'] * optim['inc1']
-optim['d2'] = optim['d2g'] * optim['inc2']
+optim['dim'] = 2  #[IN] dimension for current study
+optim['fmod'] = 'model/inv/inv_tomo.slowness'       #[OUT] current model [x] for tomography inversion
+optim['fmodref'] = 'model/inv/ref_tomo.slowness'    #[OUT] reference model mref, just define the file name
+optim['fcost'] = 'list/fcost.dat'                   #[OUT] misfit function
+optim['fdiff'] = 'list/diff.dat'                    #[OUT] differnece between observed and synthetic data for each pairs
+optim['fsensmat'] = 'list/sensmat.npz'              #[OUT] sensitivity matrix [G]
+# grids
+nx, ny      =optim['nxyfd']
+dx, dy      =optim['dxyfd']
+incx, incy  =optim['incxy']
+optim['n2'] = len(np.arange(nx)[::incx])
+optim['n1'] = len(np.arange(ny)[::incy])
+optim['d2'] = dx * incx
+optim['d1'] = dy * incy
 if optim['modeltype'] != 2:
     optim['numreg'] = 1
 else:

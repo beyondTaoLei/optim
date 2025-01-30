@@ -50,8 +50,8 @@ def generate_cmdfile(jobnm, cmdlist, headers):
   
 #INPut paras
 fdir        =sys.argv[1] # optim
-iter_start  =int(sys.argv[2]) # inversion starts from iter_start for this submission
-iter_end    =int(sys.argv[3]) # inversion ends to iter_end for this submission
+iter_start  =1 # inversion starts from iter_start for this submission
+iter_end    =1 # inversion ends to iter_end for this submission
 foptim      =os.path.join(fdir,'optim.json')
 optim       =eval(open(foptim).read())
 prjroot     =optim['prjroot']
@@ -96,7 +96,7 @@ for iterc in range(iter_start, iter_end+1, 1):
   jobs = []
   cmd_forward = '${py3}'+' '+ os.path.join('${demoroot}', 'prob', 'forward2d.py')+ ' ' + fdir_loc
   for evt in shot_list:
-    cmd = 'cd '+os.path.join('${prjroot}', 'fdio', evt) + ' && ' + cmd_forward
+    cmd = 'cd '+os.path.join('${prjroot}', 'fdio', evt) + ' && ' + cmd_forward + ' && ' + 'mv time.csv obs.csv'
     jobs.append(cmd)
   subjobs = split_jobs(jobs, ncores)
   for i in range(len(subjobs)):
@@ -108,61 +108,6 @@ for iterc in range(iter_start, iter_end+1, 1):
     generate_cmdfile(jobnm, subjobs[i], headers)
     idx += 1
     df.loc[idx] = [iterc, 1, 0, 0, cmd, out, err]
-  
-  # calculate the residuals and the sensitivity matrix
-  subjob = [
-      '${py3} ' + os.path.join('${demoroot}', 'prob', 'calc_diff_sensmat.py')+ ' '+ fdir,
-      ]
-  jobnm = os.path.join(dirjob, 'calc_diff_sensmat.bash')
-  name = os.path.basename(jobnm).split('.')[0]
-  out = 'log/out.%s.it%d'%(name, iterc)
-  err = 'log/err.%s.it%d'%(name, iterc)
-  cmd = 'bash %s >%s 2>%s'%(jobnm, out, err)
-  generate_cmdfile(jobnm, subjob, headers)
-  idx += 1
-  df.loc[idx] = [iterc, 2, 0, 0, cmd, out, err]
-  
-  # map the FD model to inversion model
-  subjob = [
-      '${py3} ' + os.path.join('${demoroot}', 'prob', 'media_fd2inv.py')+ ' '+ fdir,
-      ]
-  jobnm = os.path.join(dirjob, 'media_fd2inv.bash')
-  name = os.path.basename(jobnm).split('.')[0]
-  out = 'log/out.%s.it%d'%(name, iterc)
-  err = 'log/err.%s.it%d'%(name, iterc)
-  cmd = 'bash %s >%s 2>%s'%(jobnm, out, err)
-  generate_cmdfile(jobnm, subjob, headers)
-  idx += 1
-  df.loc[idx] = [iterc, 3, 0, 0, cmd, out, err]
-  
-  # calculate the descent direction with PLCG
-  subjob=[
-      '${py3} ' + os.path.join('${optimroot}', 'regularization', 'generate_reg2d.py')+' '+fdir, 
-      '${py3} ' + os.path.join('${optimroot}', 'PLCG', 'init.py')+' '+fdir+' '+str(iterc),
-      '${py3} ' + os.path.join('${optimroot}', 'PLCG', 'descent.py')+' '+fdir
-      ]
-  jobnm = os.path.join(dirjob, 'descent_it'+str(iterc)+'.bash')
-  name = os.path.basename(jobnm).split('.')[0]
-  out = 'log/out.%s.it%d'%(name, iterc)
-  err = 'log/err.%s.it%d'%(name, iterc)
-  cmd = 'bash %s >%s 2>%s'%(jobnm, out, err)
-  generate_cmdfile(jobnm, subjob, headers)
-  idx += 1
-  df.loc[idx] = [iterc, 4, 0, 0, cmd, out, err]
-  
-  # update the model and check the abort criterion
-  subjob=[
-      '${py3} ' + os.path.join('${demoroot}', 'prob', 'update_model.py')+ ' '+ fdir,
-      '${py3} ' + os.path.join('${demoroot}', 'prob', 'check_stopping.py')+' '+fdir
-      ]
-  jobnm = os.path.join(dirjob, 'update_model.bash')
-  name = os.path.basename(jobnm).split('.')[0]
-  out = 'log/out.%s.it%d'%(name, iterc)
-  err = 'log/err.%s.it%d'%(name, iterc)
-  cmd = 'bash %s >%s 2>%s'%(jobnm, out, err)
-  generate_cmdfile(jobnm, subjob, headers)
-  idx += 1
-  df.loc[idx] = [iterc, 5, 0, 0, cmd, out, err]
 
 #write the tasks
 jobNM = os.path.join(dirjob, 'job.csv')

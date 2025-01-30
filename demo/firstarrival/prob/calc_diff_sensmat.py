@@ -12,15 +12,11 @@ from util import raypath2senstivity
 fdir        =sys.argv[1]
 foptim      =os.path.join(fdir,'optim.json')
 optim       =eval(open(foptim).read())
-ox          =optim['o2g']
-oy          =optim['o1g']
-nxg         =optim['n2g']
-nyg         =optim['n1g']
-dxg         =optim['d2g']
-dyg         =optim['d1g']
-incx        =optim['inc2']
-incy        =optim['inc1']
-fevn_info   =optim['fevn_info']
+nx, ny      =optim['nxyfd']
+ox, oy      =optim['oxyfd']
+dx, dy      =optim['dxyfd']
+incx, incy  =optim['incxy']
+fsrc        =optim['fsrc']
 fcost       =optim['fcost']
 fdiff       =optim['fdiff']
 fsensmat    =optim['fsensmat']
@@ -29,14 +25,13 @@ ftime       ='time.csv'
 fraypath    ='raypath.dat'
 
 #interpretation
-xvel = np.arange(nxg)*dxg+ox
-yvel = np.arange(nyg)*dyg+oy
-nx = len(np.arange(nxg)[::incx])
-ny = len(np.arange(nyg)[::incy])
+xvel = np.arange(nx)*dx+ox
+yvel = np.arange(ny)*dy+oy
+nxi = len(np.arange(nx)[::incx])
+nyi = len(np.arange(ny)[::incy])
 
 # read source info.
-fevn_info   =optim['fevn_info']
-evn_info=pd.read_csv(fevn_info)
+evn_info=pd.read_csv(fsrc)
 shot_list=list(evn_info['station'])
 
 # read time
@@ -76,14 +71,14 @@ if len(b) != len(raypaths_list):
 
 idxs = np.where(b>-900.0)[0]
 b = b[idxs]
-nxg2, nyg2 = nx*incx, ny*incy
+nxg2, nyg2 = nxi*incx, nyi*incy
 mat2d = np.zeros([nxg2, nyg2], np.float32)
 res = []
 for j in idxs:
     #print(j)
     raypath2senstivity(raypaths_list[j], xvel, yvel, mat2d)
     arr2d = mat2d[:nxg2, :nyg2]
-    mat2dblk = arr2d.reshape(nx, incx, ny, incy).sum(axis=(1, 3))
+    mat2dblk = arr2d.reshape(nxi, incx, nyi, incy).sum(axis=(1, 3))
     mat2dblk = gaussian_filter(mat2dblk, sigma=3.0*incx/np.sqrt(8.0))
     cscmat = sparse.csc_matrix(mat2dblk.flatten())
     res.append(cscmat)

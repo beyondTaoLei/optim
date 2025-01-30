@@ -12,12 +12,9 @@ from util import sourceInitiation
 fdir        =sys.argv[1]
 foptim      =os.path.join(fdir,'optim.json')
 optim       =eval(open(foptim).read())
-ox          =optim['o2g']
-oy          =optim['o1g']
-nx          =optim['n2g']
-ny          =optim['n1g']
-dx          =optim['d2g']
-dy          =optim['d1g']
+nx, ny      =optim['nxyfd']
+ox, oy      =optim['oxyfd']
+dx, dy      =optim['dxyfd']
 fmodfd      =optim['fmodfd']
 fmod        =os.path.join('../..', fmodfd)
 # input file
