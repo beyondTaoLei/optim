@@ -108,11 +108,11 @@ By following these steps, you'll ensure that all necessary packages are installe
   'mpiexep'           :'/path/to/your/python/MPI/parallel/launcher',  # python mpirun
   ```
   **Parameters**
-  - ***optimroot: string*** 
+  - ***optimroot: string***  
   The root path to the optimization toolbox codes. 
-  - ***mpiexec: string*** 
+  - ***mpiexec: string***  
   The path to C MPI parallel launcher. 
-  - ***mpiexep: string*** 
+  - ***mpiexep: string***  
   The path to Python MPI parallel launcher.
 
 - Write the global parameters for the whole project
@@ -308,11 +308,11 @@ In this section, we will discribe how to set the parameters in the configuration
   'mpiexep'           :'/path/to/your/python/MPI/parallel/launcher',  # python mpirun
   ```
   **Parameters**
-  - ***optimroot: string*** 
+  - ***optimroot: string***  
   The root path to the optimization toolbox codes. 
-  - ***mpiexec: string*** 
+  - ***mpiexec: string***  
   The path to C MPI parallel launcher. 
-  - ***mpiexep: string*** 
+  - ***mpiexep: string***  
   The path to Python MPI parallel launcher. 
 
 ### 4.2 File path information
@@ -327,17 +327,17 @@ In this section, we will discribe how to set the parameters in the configuration
   'grad_taper_file'   :'list/taper.bin',      
   ```
   **Parameters**
-  - ***fevn_info: input, string***
+  - ***fevn_info: input, string***  
     The path for storing the source information, where the data is saved in *csv* format. The key 'station' in the header indicates the source name, while 'x' and 'z' indicate the coordinates of the source, 'tshift' indicate the time delay, and 'fc' denotes the center frequency of the wavelet.
-  - ***fmodfd: input&output, string***
+  - ***fmodfd: input&output, string***  
     The path for storing the current vp model, where the data is saved in a 32-bit floating-point binary file. The input data is arranged in *column-major* order, with the coordinate origin at the top-left corner. The x-axis extends to the right, and the y-axis extends downward. Note that, the associated density model, named with the suffix .rho, has also to be provided.
-  - ***fmod: output, string***
+  - ***fmod: output, string***  
     The path for storing the resampled output of the model is within the file ***fmodfd***. For this study, we do not resample the grids during calculating the gradient.
-  - ***fcost: output, string***
+  - ***fcost: output, string*** 
     The path for storing the misfit function, where the data is saved in *ASCII* floating-point type.
-  - ***fgrad: output, string***
+  - ***fgrad: output, string***  
     The path for storing the gradient, where the data is saved in a 32-bit floating-point binary file.
-  - ***grad_taper_file: input, string***
+  - ***grad_taper_file: input, string***  
     The path to user-defined taper file for the gradient, where the data is saved in a 32-bit floating-point binary file.
 
 ### 4.3 Forward modeling module
@@ -358,29 +358,29 @@ In this section, we will discribe how to set the parameters in the configuration
   'comp'              :['P'],                   
   ```
   **Parameters**
-  - ***ncores: int***
+  - ***ncores: int***  
     The number of CPU cores within a single node. Since the tasks are submitted using the LSF management system, it is essential to declare this configuration.
-  - ***nproc: list of int***
+  - ***nproc: list of int***  
     The number of MPI processors used for forward modeling in the x- and z-directions, respectively.
-  - ***nxzfd: list of int***
+  - ***nxzfd: list of int***  
     The number of grid points of the input model for forward modeling in the x- and z-directions, respectively.
-  - ***oxzfd: list of float***
+  - ***oxzfd: list of float***  
     The original coordinates of the input model for forward modeling in the x- and z-directions, respectively.
-  - ***dxzfd: list of float***
+  - ***dxzfd: list of float***  
     The grid spacing of the input model for forward modeling in the x- and z-directions, respectively. For the *SOFI2DAC* software, the grid spacing is uniform in both directions.
-  - ***nt: int***
+  - ***nt: int***  
     The total number of time steps for the simulation.
-  - ***delta: float***
+  - ***delta: float***  
     The time stepping interval in second.
-  - ***tshift_adj: float***
+  - ***tshift_adj: float***  
     The deadline for backward modeling. Since there is a time delay when exciting the source, it is not necessary to calculate the correlation of the forward wavefield and the backward wavefield during this period. It is recommended to set this to the time delay of the source signal.
-  - ***freesurface: int***
+  - ***freesurface: int***  
     Whether to apply a plane stress free surface at the top of the global grid, as proposed by Levander (1988). A value of 1 means yes, while 0 means no.
-  - ***pml: int***
+  - ***pml: int***  
     The number of Perfectly Matched Layers (PML) applied as boundary conditions on each side face and the bottom face of the model grid. If the *freesurface* is set to 1, the boundary condition will also be applied on the top face. A width of the absorbing frame between 10-20 grid points should be sufficient.
-  - ***pmlvel: float***
+  - ***pmlvel: float***  
     The attenuation velocity within the PML, measured in m/s. This value should be approximately equal to the propagation velocity of the dominant wave near the model boundaries.
-  - ***comp: list of string***
+  - ***comp: list of string***  
     The type of measurement components. For acoustic waveform inversion, only the pressure component ('P') is available.
   
 ### 4.4 Date manipulation module
@@ -405,37 +405,37 @@ In this section, we will discribe how to set the parameters in the configuration
   'timewin_upper'             :10.0,          
   ```
   **Parameters**
-  - ***velocity: int***
+  - ***velocity: int***  
     Whether to apply integration in the time domain. A value of 0 means integration is applied, while 1 means no integration.
-  - ***dirmute: int***
+  - ***dirmute: int***  
     Whether to apply direct wave muting. A value of 0 means no muting, 1 means direct waves will be muted according to the propagation speed of seismic waves, 2 means direct waves will be muted using *f-k* filtering, and 3 means direct waves will be muted using a user-defined muting file based on observed arrival travel times.
-  - ***dirmute_taperlen: float***
+  - ***dirmute_taperlen: float***  
     The taper length when *dirmute* is set to 1. The muting time window starts from the direct waves and extends with a length defined by *dirmute_taperlen*.
-  - ***dirmute_t0: float***
+  - ***dirmute_t0: float***  
     Time offset caused by the delayed excitation of the source when *dirmute* is set to 1.
-  - ***dirmute_lower: float***
+  - ***dirmute_lower: float***  
     The propagating speed of the direct wave when *dirmute* is set to 1, or the stop band low corner speed when *dirmute* is set to 2.
-  - ***dirmute_upper: float***
+  - ***dirmute_upper: float***  
     The stop band high corner speed when *dirmute* is set to 2. The data with propagating speeds between *dirmute_lower* and *dirmute_upper* will be muted.
-  - ***timefilt: int***
+  - ***timefilt: int***  
     Whether to apply lowpass filtering. A value of 1 means yes, while 0 means no.
-  - ***fc: float***
+  - ***fc: float***  
     The low cut-off frequency in Hz.
-  - ***order: int***
+  - ***order: int***  
     The filter corners or order, with values of 4 or 6 being recommended based on experience.
-  - ***zero_phase: int***
+  - ***zero_phase: int***  
     Whether to keep zero phase shift when filtering. A value of 1 means *true*, while 0 means *false*.
-  - ***trkill: int***
+  - ***trkill: int***  
     Whether to apply trace killing. A value of 1 means yes, while 0 means no.
-  - ***trkill_lower: float***
+  - ***trkill_lower: float***  
     The minimum offset when *trkill* is set to 1. The traces outside the range [*trkill_lower*, *trkill_upper*] will be muted.
-  - ***trkill_upper: float***
+  - ***trkill_upper: float***  
     The maximum offset when *trkill* is set to 1.
-  - ***timewin: int***
+  - ***timewin: int***  
     Whether to apply time windowing. A value of 1 means yes, while 0 means no.
-  - ***timewin_lower: float***
+  - ***timewin_lower: float***  
     The starting time of the window in seconds. Seismograms outside the time range [*timewin_lower*, *timewin_upper*] will be removed.
-  - ***timewin_upper: float***
+  - ***timewin_upper: float***  
     The end time of the window in seconds.
   
 ### 4.5 Gradient calculation module
@@ -452,21 +452,21 @@ In this section, we will discribe how to set the parameters in the configuration
   'grad_taper_file'           :'list/taper.bin', # already shown in [File path information] module
   ```
   **Parameters**
-  - ***Lnorm: int*** 
+  - ***Lnorm: int***  
     The type of misfit function. For now, you can choose 2 for the *L2* norm or 3 for *cross-correlation*.
-  - ***epsilon: int*** 
+  - ***epsilon: int***  
     The water level to stabilize the preconditioning operator, with a suggested range of 0 to 0.05.
-  - ***grad_taper_shot: int*** 
+  - ***grad_taper_shot: int***  
     Whether to apply a frustal taper around the source and receiver position for the gradient per shot. A value of 1 means yes, while 0 means no.
-  - ***srtradius1: int*** 
+  - ***srtradius1: int***  
     The distance between the vertex of the taper and the source or receiver position when *grad_taper_shot* is set to 1. The frustal taper around the source/receiver positions decreases from a value of one at the edge of the taper (*r=srtradius2*) to a value of zero near the associated source/receiver positions (*r=srtradius1*).
-  - ***srtradius2: int*** 
+  - ***srtradius2: int***   
     The distance between the edge of the taper and the source or receiver position when *grad_taper_shot* is set to 1.
-  - ***grad_filt: int*** 
+  - ***grad_filt: int***  
     The smoothing size for the gradient in grid points. A value of 0 means no smoothing is applied.
-  - ***grad_taper: int*** 
+  - ***grad_taper: int***   
     Whether to apply a taper to the final gradient. A value of 1 means yes, while 0 means no.
-  - ***grad_taper_file: int*** 
+  - ***grad_taper_file: int***   
     The path to the user-defined taper file for the gradient when *grad_taper* is set to 1. The data should be saved in a 32-bit floating-point binary file.
 
 ### 4.6 Descent direction module
@@ -476,7 +476,7 @@ In this section, we will discribe how to set the parameters in the configuration
   'l'                 :5          # optim needs
   ```
   **Parameters**
-  - ***l: int***
+  - ***l: int***  
     The number of the most recent correction pairs $\{s_k, y_k\}$. Users can specify the number *l* according to the degree of complexity of the inverse problem. It is suggested to be less than 10.
   
 ### 4.7 Model update module
@@ -493,21 +493,21 @@ In this section, we will discribe how to set the parameters in the configuration
   'mod_ub'            :5000,      # optim needs           
   ```
   **Parameters**
-  - ***try_old_sl: int***  
+  - ***try_old_sl: int***    
     For some optimization methods, adjacent iterations have similar step lengths and descent directions. The optimal step length from the last iteration is an ideal test step length for the current iteration. *try_old_sl* indicates whether to use the optimal step length from the last iteration for step length estimation. 1 means yes; 0 means no.
-  - ***max_m0: float*** 
+  - ***max_m0: float***   
     The estimated maximum value of inversion parameters, which is useful for calculating the model update.
-  - ***eps_scale: float***  
+  - ***eps_scale: float***    
     The percentage of the model update relative to the model. If *eps_scale* > 0, the descent direction will be scaled to $eps\_scale*\frac{max\_m0}{max(p_k)}$; if *eps_scale* < 0, no scaling factor is applied to the descent direction. Instead, the user can apply the scaling factor to the gradient.
-  - ***alpha_lb: float***
+  - ***alpha_lb: float***  
     Lower limit of step length, suggested to be in the range 0 < $alpha\_lb$ < 1.
-  - ***alpha_ub: float***
+  - ***alpha_ub: float***  
     Upper limit of step length, suggested to be in the range 1 < $alpha\_ub$ < 10.
-  - ***mod_limits: int***
+  - ***mod_limits: int***  
     Whether to check the bounds of model value. 1 means yes; 0 means no.
-  - ***mod_lb: float***  
+  - ***mod_lb: float***    
     Lower limit of model value, set according to the prior information of the model.
-  - ***mod_ub: float***  
+  - ***mod_ub: float***    
     Upper limit of model value, set according to the prior information of the model.
 
 ### 4.8 Inversion loop
@@ -523,17 +523,17 @@ In this section, we will discribe how to set the parameters in the configuration
   'pro3'              :0.01,
   ```
   **Parameters**
-  - ***abort: int***
+  - ***abort: int***  
     The initial status for the inverse workflow. The value 0 is required when updating the configuration JSON file using the script **S0_prepare.py**; the value 1 indicates that one abort criterion has been met.
-  - ***iter0: int***
+  - ***iter0: int***  
     The initial iteration number for the current inversion stage/phase.
-  - ***niter_min: int***
+  - ***niter_min: int***  
     The minimum number of iterations.
-  - ***niter_max: int***
+  - ***niter_max: int***  
     The maximum number of iterations, for future design.
-  - ***pro: int***
+  - ***pro: int***  
     The convergence threshold. The inversion will terminate when the relative reduction in the misfit function $\frac{E_{i-2}-E_{i}}{E_{i-2}}$ falls below this threshold, where $E_{i}$ means the misfit function at *i*th iteration.
-  - ***pro2: int***
+  - ***pro2: int***  
     The slope convergence threshold. The inversion will terminate when the change rate in the misfit function slope $\frac{k_{i}}{k_{0}}$ falls below this threshold, where $k_{i}$ means the misfit function slope at *i*th iteration.
-  - ***pro3: int***
+  - ***pro3: int***  
     The average convergence threshold. The inversion will terminate when the average value of the misfit function over nearby iterations $\frac{ave_{i}}{ave_{0}}$ falls below this threshold, where $ave_{i}$ means the average of misfit function around *i*th iteration.
