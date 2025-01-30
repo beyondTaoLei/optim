@@ -20,37 +20,25 @@ os.makedirs('log', exist_ok=True)
 os.makedirs('job', exist_ok=True)
 
 optim={
-    'optimroot'             :'/home/tao/seis_software/test/optim', #[IN] software path
+    'optimroot'             :'/home/tao/Downloads/optim', #[IN] software path
     'Forward part'          :'comment',
-    'mpiexec'               :'mpirun',
-    'ncores'                :8,                         #[IN] number of cores you can apply for modelling
-    'fcmp'                  :'list/cmp.csv',            #[IN] the measure coordinates (CMP)
-    'fmodfd'                :'model/inv/inv.vs',        #[IN] the current model in work memory
-    'fperiods'              :'list/periods.csv',        #[IN] measured periods in second, starting with low periods
+    'mpiexep'               :'mpirun',
     'algo'                  :'dunkin',                  #[IN] algorithm for disperison calculation
     'wavetype'              :'rayleigh',                #[IN] 'love' or 'rayleigh'
     'maxmode'               :0,                         #[IN] code, fund. 0, first high mode 1
-    'wdir'                  :'syn',                     #[IN] work directory for synthetic data
-    'n3g'                   :1,                         #[IN] X- grid number of forward modeling
-    'n2g'                   :1300,                      #[IN] Y- grid number of forward modeling 
-    'n1g'                   :400,                       #[IN] Z- grid number of forward modeling
-    'o3g'                   :0.0,                       #[IN] X- original coordinate of model in meter
-    'o2g'                   :0.0,                       #[IN] Y- original coordinate of model in meter
-    'o1g'                   :0.0,                       #[IN] Z- original coordinate of model in meter
-    'd3g'                   :500.0,                     #[IN] X- spacing in meter
-    'd2g'                   :500.0,                     #[IN] Y- spacing in meter
-    'd1g'                   :500.0,                     #[IN] Z- spacing in meter
+    'ncores'                :8,                         #[IN] number of cores you can apply for modelling
+    'fstn'                  :'list/stn.csv',            #[IN] the measure coordinates
+    'fperiods'              :'list/periods.csv',        #[IN] measured periods in second, starting with low periods
+    'fmodfd'                :'model/inv/inv.vs',        #[IN] the current model in work memory
+    'nxyzfd'                :[1, 1300, 400],            #[IN] X-, Y- and Z-dir grid number of input model
+    'oxyzfd'                :[0.0, 0.0, 0.0],           #[IN] X-, Y- and Z-dir original coordinate of input model in meter
+    'dxyzfd'                :[500.0, 500.0, 500.0],     #[IN] X-, Y- and Z-dir spacing of input model in meter
     'Gradient part'         :'comment',
-    'odir'                  :'obs',                     #[IN] work directory for observed data
-    'smooth_size'           :'0.0:30000.0:9000.0',      #[IN] smooth size for descent direction, in meter (such as, 6*d3g:6*d2g:6*d1g)
-    'percond'               :1,                         #[IN] preconditional operator for gradient.
+    'smooth_size'           :[0.0, 30000.0, 9000.0],    #[IN] smooth size for descent direction, in meter (such as, 6*d3g:6*d2g:6*d1g)
+    'precond'               :1,                         #[IN] preconditional operator for gradient.
     'EPSILON'               :0.05,                      #[IN] preconditional gradient is grad/(diagHessian+diagHessian.mean(axis=0).max()*EPSILON).
     'Optimization'          :'comment',
-    'fcost'                 :'list/fcost.dat',          #[OUT] the misfit at point fmod
-    'fgrad'                 :'list/grad.bin',           #[OUT] the gradient at point fmod
-    'fhess'                 :'list/hess.bin',           #[OUT] the Hessian vector product at point [fmod, fvctr]
-    'fvctr'                 :'list/vctr.bin',           #[OUT] the vector pk in LCG algorithm
-    'PNLCG'                 :'comment',
+    'NLCG'                  :'comment',
     'powell'                :1,                         #[IN] wheter to check Powell restart condition(1-yes, 0-no)
     'l-BFGS'                :'comment',
     'l'                     :5,                         #[IN] the maximum storing number of the pairs {sk,yk}(~3-7)
@@ -68,35 +56,40 @@ optim={
     'eta_update'            :0,                         #[IN] 1: update the eta during inversion cycle; 0: not update
     'Steplength'            :'comment',
     'try_old_sl'            :1,                         #[IN] whether to use steplength from last iter.(1-yes, 0-no)
-    'eps_scale'             :0.03,                      #[IN] max_m0*eps_scale as one unit to test the steplength
     'max_m0'                :4700.0,                    #[IN] the maximum of initial model
+    'eps_scale'             :0.03,                      #[IN] max_m0*eps_scale as one unit to test the steplength
     'alpha_lb'              :0.1,                       #[IN] lower limit of steplength
     'alpha_ub'              :10,                        #[IN] upper limit of steplength
-    'mod_limits'            :1,                         #[IN] 1: check the bound of model value;0 no limit for model value
-    'mod_lb'                :2500,                      #[IN] lower limit of model value in m/s
-    'mod_ub'                :5000,                      #[IN] upper limit of model value in m/s
+    'mod_limits'            :1,                         #[IN] whether to check the bound of model value, 1: yes, 0: no
+    'mod_lb'                :2500,                      #[IN] lower limit of model value if mod_limits=1
+    'mod_ub'                :5000,                      #[IN] upper limit of model value if mod_limits=1
     'Inversion loop'        :'comment',
+    'abort'                 :0,                         #[IN] intial stage phase
     'iter0'                 :1,                         #[IN] the initial iteration at current inversion stage/phase
-    'niter_max'             :30,                        #[IN] maximum iterations, for future design
+    'niter_min'             :30,                        #[IN] minimum iterations
+    'niter_max'             :40,                        #[IN] maximum iterations, for future design
+    'pro'                   :0.01,                      #[IN] (Ei2 - Ei) / Ei2
+    'pro2'                  :0.01,                      #[IN] k2 / k1 
+    'pro3'                  :0.01,                      #[IN] average2 / average1 
 }
+optim['demoroot'] = os.path.dirname(os.path.dirname(__file__)) #.../surfacewave
 optim['prjroot'] = os.getcwd() # project path
 optim['fdir'] = fdir
-optim['fmod'] = optim['fmodfd'] # grid of FD = grid of inversion
-optim['n3'] = optim['n3g']
-optim['n2'] = optim['n2g']
-optim['n1'] = optim['n1g']
-optim['d3'] = optim['d3g']
-optim['d2'] = optim['d2g']
-optim['d1'] = optim['d1g']
+optim['odir'] = 'obs'                               #[IN] work directory for observed data
+optim['wdir'] = 'syn'                               #[IN] work directory for synthetic data
+optim['fmod'] = optim['fmodfd']                     # grid of FD = grid of inversion
+optim['fcost'] = 'list/fcost.dat'                   #[OUT] misfit function
+optim['fgrad'] = 'list/grad.bin'                    #[OUT] the gradient at point fmod
+optim['fhess'] = 'list/hess.bin'                    #[OUT] the Hessian vector product at point [fmod, fvctr]
+optim['fvctr'] = 'list/vctr.bin'                    #[OUT] the vector pk in LCG algorithm
+# inverse grids
+optim['n3'] = optim['nxyzfd'][0]
+optim['n2'] = optim['nxyzfd'][1]
+optim['n1'] = optim['nxyzfd'][2]
+optim['d3'] = optim['dxyzfd'][0]
+optim['d2'] = optim['dxyzfd'][1]
+optim['d1'] = optim['dxyzfd'][2]
 optim['n'] = optim['n3']*optim['n2']*optim['n1'] #only for TRN now
-
-#read indexes of CMP
-df = pd.read_csv(optim['fcmp'])
-optim['ntraces'] = len(df['offset'])
-
-df = pd.read_csv(optim['fperiods'])
-periods = np.array(df['T0'])
-optim['nper'] = len(periods)
 
 # write work infomation
 foptim = os.path.join(fdir,'optim.json')

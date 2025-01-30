@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-solve surface wave inversion problem with Preconditioning Linear Conjugate Gradient optimization
+solve surface wave inversion problem with PLCG optimization
 Usage:
     
 """
@@ -16,21 +16,36 @@ def lcv_lambda(a0,step, num):
         a[i]=a0/(step**i)
     return a
 
-def generate_cmdfile(jobnm, joblist, headers, parallel=1):
+def generate_cmdfile(jobnm, cmdlist, headers):
   """
-  generate FD commands into file
+  generate jobs with bash script
+  if necessary, change corresponding parameters.
   """
+  prjroot = headers['prjroot']
   fp = open(jobnm,'w')
-  for s in headers:
-    a=fp.write("%s\n"%s)
-  a=fp.write("\n")
-  if parallel == 1:
-    for s in joblist[:-1]:
-      a=fp.write('%s&\n'% s) 
-    a=fp.write('%s\n'% joblist[-1])
-  else:
-    for s in joblist:
-      a=fp.write('%s\n'% s)
+  # bash headers
+  a = fp.write('#!/bin/bash \n\n')
+  # environment variables
+  for key, value in headers.items():
+    s = key + '=' + str(value)
+    a = fp.write("%s\n"%s)
+  a = fp.write("\n")
+  # write users' commands
+  a = fp.write('commands=( \n')
+  num = len(cmdlist)
+  for i in range(num):
+    a = fp.write('    "'+cmdlist[i] + '"\n')
+  a = fp.write(') \n\n')
+  # Run and check each Python command
+  a = fp.write('for cmd in "${commands[@]}"; do\n')
+  a = fp.write('    eval $cmd \n')
+  a = fp.write('    if [ $? -ne 0 ]; then\n')
+  a = fp.write('        echo "Exiting unsuccessfully." \n')
+  a = fp.write('        echo "$cmd failed. Exiting..." >&2 \n')
+  a = fp.write('        exit 1\n')
+  a = fp.write('    fi\n')
+  a = fp.write('done\n\n')
+  a = fp.write('echo "Exiting successfully."\n')
   fp.close()
 
 #Input paras
@@ -40,23 +55,23 @@ iter_end    =int(sys.argv[3]) # inversion ends to iter_end for this submission
 foptim      =os.path.join(fdir,'optim.json')
 optim       =eval(open(foptim).read())
 prjroot     =optim['prjroot']
+demoroot    =optim['demoroot']
 optimroot   =optim['optimroot']
-mpiexec     =optim['mpiexec']
+mpiexep     =optim['mpiexep']
 NP          =optim['ncores']
 py3         ='python3'
-dirjob      = 'job'
-lambda0 = 6.0e-3
-lambdas = lcv_lambda(lambda0, 1.5, iter_end-iter_start+1)
+dirjob      ='job'
+lambdas = lcv_lambda(100.0, 4.0, 20)
+lambda_idx0  = 7
 
-fdroot = os.path.join(optimroot, 'demo', 'surfacewave', 'prob')
-headers =[
-    "prjroot='%s'"%prjroot,
-    "fdroot='%s'"%fdroot,
-    "optimroot='%s'"%optimroot,
-    "py3='%s'"%py3,
-    "mpiexec='%s'"%mpiexec,
-    "NP=%d"%NP
-    ]
+headers = {
+  "prjroot"   :prjroot,
+  "demoroot"  :demoroot,
+  "optimroot" :optimroot,
+  "mpiexep"   :mpiexep,
+  "py3"       :py3,
+  "NP"        :NP
+}
 
 """
 Initialization for current stage
@@ -70,50 +85,72 @@ for iterc in range(iter_start, iter_end+1, 1):
 """
 Inversion loop
 """
-df = pd.DataFrame(columns=['iter', 'step', 'status', 'flag', 'cmd'])
+df = pd.DataFrame(columns=['iter', 'step', 'inner', 'status', 'cmd', 'outfile', 'errfile'])
 idx = -1
 for iterc in range(iter_start, iter_end+1, 1):
   # print information
   print('*'*80)
-  print('generate the commands at iter. %4d of [%4d %4d]'%(iterc, iter_start, iter_end)) 
+  print('starts to generate the commands at iter. %4d of [%4d %4d]'%(iterc, iter_start, iter_end)) 
   
   # calculate the difference and sensitivity matrix
-  subjob= [
-          '${mpiexec}' + ' -np ${NP} ${py3} ' + os.path.join('${fdroot}', 'forward.py')+' '+fdir,
-          '${mpiexec}' + ' -np ${NP} ${py3} ' + os.path.join('${fdroot}', 'kernel.py')+' '+fdir +' 0',
-          '${py3} ' + os.path.join('${fdroot}', 'calc_diff_sensmat.py')+' '+fdir
-          ]
+  subjob = [
+            '${mpiexep}' + ' -np ${NP} ${py3} ' + os.path.join('${demoroot}', 'prob', 'forward.py')+' '+fdir,
+            '${mpiexep}' + ' -np ${NP} ${py3} ' + os.path.join('${demoroot}', 'prob', 'kernel.py')+' '+fdir +' 0',
+            '${py3} ' + os.path.join('${demoroot}', 'prob', 'calc_diff_sensmat.py')+' '+fdir
+            ]
   jobnm = os.path.join(dirjob, 'fd.bash')
-  generate_cmdfile(jobnm, subjob, headers, 0)
+  name = os.path.basename(jobnm).split('.')[0]
+  out = 'log/out.%s.it%d'%(name, iterc)
+  err = 'log/err.%s.it%d'%(name, iterc)
+  cmd = 'bash %s >%s 2>%s'%(jobnm, out, err)
+  generate_cmdfile(jobnm, subjob, headers)
   idx += 1
-  df.loc[idx] = [iterc, 1, 0, 0, 'bash ' + jobnm]
+  df.loc[idx] = [iterc, 1, 0, 0, cmd, out, err]
   
   # map the input grids to inversion grids
-  subjob = ['${py3} ' + os.path.join('${fdroot}', 'media_fd2inv.py'+ ' '+ fdir), ]
+  subjob = [
+           '${py3} ' + os.path.join('${demoroot}', 'prob', 'media_fd2inv.py'+ ' '+ fdir), 
+           ]
   jobnm = os.path.join(dirjob, 'mediamap.bash')
-  generate_cmdfile(jobnm, subjob, headers, 0)
+  name = os.path.basename(jobnm).split('.')[0]
+  out = 'log/out.%s.it%d'%(name, iterc)
+  err = 'log/err.%s.it%d'%(name, iterc)
+  cmd = 'bash %s >%s 2>%s'%(jobnm, out, err)
+  generate_cmdfile(jobnm, subjob, headers)
   idx += 1
-  df.loc[idx] = [iterc, 2, 0, 0, 'bash ' + jobnm]
+  df.loc[idx] = [iterc, 2, 0, 0, cmd, out, err]
   
   # calculate the descent direction with PLCG
-  lam = lambdas[iterc-iter_start]
-  subjob= [
-          '${py3} ' + os.path.join('${fdroot}', 'update_optim.py'+ ' '+ fdir+ ' '+ 'lambda0'+ ' '+ str(lam)),
-          '${py3} ' + os.path.join('${optimroot}', 'regularization', 'generate_reg2d.py')+' '+fdir, 
-          '${py3} ' + os.path.join('${optimroot}', 'PLCG', 'init.py')+' '+fdir+' '+str(iterc),
-          '${py3} ' + os.path.join('${optimroot}', 'PLCG', 'descent.py')+' '+fdir
-          ]
+  idxc = lambda_idx0 + iterc//3
+  lam = lambdas[idxc]
+  subjob  = [
+            '${py3} ' + os.path.join('${demoroot}', 'prob', 'update_optim.py'+ ' '+ fdir+ ' '+ 'lambda0'+ ' '+ str(lam)),
+            '${py3} ' + os.path.join('${optimroot}', 'regularization', 'generate_reg2d.py')+' '+fdir, 
+            '${py3} ' + os.path.join('${optimroot}', 'PLCG', 'init.py')+' '+fdir+' '+str(iterc),
+            '${py3} ' + os.path.join('${optimroot}', 'PLCG', 'descent.py')+' '+fdir
+            ]
   jobnm = os.path.join(dirjob, 'descent'+str(iterc)+'.bash')
-  generate_cmdfile(jobnm, subjob, headers, 0)
+  name = os.path.basename(jobnm).split('.')[0]
+  out = 'log/out.%s.it%d'%(name, iterc)
+  err = 'log/err.%s.it%d'%(name, iterc)
+  cmd = 'bash %s >%s 2>%s'%(jobnm, out, err)
+  generate_cmdfile(jobnm, subjob, headers)
   idx += 1
-  df.loc[idx] = [iterc, 3, 0, 0, 'bash ' + jobnm]
+  df.loc[idx] = [iterc, 3, 0, 0, cmd, out, err]
   
   # update the model
-  subjob =['${py3} ' + os.path.join('${fdroot}', 'update_model.py'+ ' '+ fdir), ]
+  subjob  = [
+            '${py3} ' + os.path.join('${demoroot}', 'prob', 'update_model.py'+ ' '+ fdir), 
+            '${py3} ' + os.path.join('${demoroot}', 'prob', 'check_stopping.py')+' '+fdir
+            ]
   jobnm = os.path.join(dirjob, 'update_model.bash')
-  generate_cmdfile(jobnm, subjob, headers, 0)
+  name = os.path.basename(jobnm).split('.')[0]
+  out = 'log/out.%s.it%d'%(name, iterc)
+  err = 'log/err.%s.it%d'%(name, iterc)
+  cmd = 'bash %s >%s 2>%s'%(jobnm, out, err)
+  generate_cmdfile(jobnm, subjob, headers)
   idx += 1
-  df.loc[idx] = [iterc, 4, 0, 0, 'bash ' + jobnm]
+  df.loc[idx] = [iterc, 4, 0, 0, cmd, out, err]
 
 #write the tasks
 jobNM = os.path.join(dirjob, 'job.csv')

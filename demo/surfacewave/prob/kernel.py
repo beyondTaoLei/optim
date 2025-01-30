@@ -7,7 +7,7 @@ import sys
 import numpy as np
 import pandas as pd
 from mpi4py import MPI
-sys.path.append('/home/tao/seis_software/ATT_surfwaves/forward')
+# sys.path.append('/home/tao/seis_software/ATT_surfwaves/forward')
 from dpcxx import GradientEval
 
 #initialize MPI
@@ -22,18 +22,21 @@ foptim      =os.path.join(fdir,'optim.json')
 optim       =eval(open(foptim).read())
 fmod        =optim['fmodfd']
 fperiods    =optim['fperiods']
+fstn        =optim['fstn']
 wdir        =optim['wdir']
 wavetype    =optim['wavetype']
-nper        =optim['nper']
-ntraces     =optim['ntraces']
-n1          =optim['n1g']
-d1          =optim['d1g']
+nx, ny, nz  =optim['nxyzfd']
+dx, dy, dz  =optim['dxyzfd']
 lastele     =3
 
 # interpretation
 df = pd.read_csv(fperiods)
+nper = df.shape[0]
 periods = np.array(df['T0'])
 freqs = 1.0/periods
+# read indexes of stations
+df = pd.read_csv(fstn)
+ntraces = df.shape[0]
 
 # read phase velocity
 fnm = os.path.join(wdir, 'part', 'vmap_M%1d_id%02d.bin'%(mode, MYID))
@@ -46,14 +49,14 @@ phvel[:] /= 1000.0 #km/s
 
 # read model
 fnm = os.path.join(wdir, 'part', 'mod_id%02d.bin'%MYID)
-modloc = np.fromfile(fnm, np.float32).reshape([3, mynum, n1])
-model = np.zeros([n1, 5])
-model[:,0] = np.arange(n1) + 1.0
-coordz1d = np.arange(n1)*d1
+modloc = np.fromfile(fnm, np.float32).reshape([3, mynum, nz])
+model = np.zeros([nz, 5])
+model[:,0] = np.arange(nz) + 1.0
+coordz1d = np.arange(nz)*dz
 model[:,1] = coordz1d/1000.0 #'kilometers'
 
 # run kernel generation
-kernels = np.zeros([nper, mynum, n1], np.float32)
+kernels = np.zeros([nper, mynum, nz], np.float32)
 for i in range(mynum):
     model[:,2] = modloc[2,i,:] #rho
     model[:,3] = modloc[1,i,:] #vs
@@ -90,7 +93,7 @@ for iper in range(nper):
                 part.tofile(fp)
                 count+=np.sum(where_are_NaNs)
             if count > 0:
-                print('NaN percentage: %s %.6f'%(fname, count/(ntraces*n1)))
+                print('NaN percentage: %s %.6f'%(fname, count/(ntraces*nz)))
 
 if MYID == 0:
     print("Finished...", __file__)

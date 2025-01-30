@@ -2,7 +2,7 @@
 """
 calculate phase velocity errors and map the sensitivity kernel 
 of each measurement into the inversion grids, as
-1D array [n1g] ---> 1D array [n1] ---> array([n3, n2, n1]).flatten()
+1D array [nz] ---> 1D array [n1] ---> array([n3, n2, n1]).flatten()
 
 
 """
@@ -15,38 +15,36 @@ from numpy import linalg as LA
 from scipy.ndimage import gaussian_filter
 
 #Input paras
-fdir        =sys.argv[1]
-foptim      =os.path.join(fdir,'optim.json')
-optim       =eval(open(foptim).read())
-wdir        =optim['wdir']
-odir        =optim['odir']
-fperiods    =optim['fperiods']
-fcmp        =optim['fcmp']
-fcost       =optim['fcost']
-fdiff       =optim['fdiff']
-fsensmat    =optim['fsensmat']
-nper        =optim['nper']
-ntraces     =optim['ntraces']
-n3g         =optim['n3g']
-n2g         =optim['n2g']
-n1g         =optim['n1g']
-inc3        =optim['inc3']
-inc2        =optim['inc2']
-inc1        =optim['inc1']
-n3          =optim['n3']
-n2          =optim['n2']
-n1          =optim['n1']
-maxmode     =optim['maxmode']
-modes       =maxmode + 1
+fdir              =sys.argv[1]
+foptim            =os.path.join(fdir,'optim.json')
+optim             =eval(open(foptim).read())
+wdir              =optim['wdir']
+odir              =optim['odir']
+fperiods          =optim['fperiods']
+fstn              =optim['fstn']
+fcost             =optim['fcost']
+fdiff             =optim['fdiff']
+fsensmat          =optim['fsensmat']
+nx, ny, nz        =optim['nxyzfd']
+incx, incy, incz  =optim['incxyz']
+n3                =optim['n3']
+n2                =optim['n2']
+n1                =optim['n1']
+maxmode           =optim['maxmode']
+modes             =maxmode + 1
 
 # interpretation
 df = pd.read_csv(fperiods)
+nper = df.shape[0]
 periods = np.array(df['T0'])
 sigmas = np.array([2.0, 2.0, 2.0])/np.sqrt(8.0)
 
-# read indexes of CMP
-df = pd.read_csv(fcmp)
-offsets = df['offset']
+# read indexes of stations
+df = pd.read_csv(fstn)
+ntraces = df.shape[0]
+# offsets = df['offset']
+ixs = df['ix']
+iys = df['iy']
     
 b = np.zeros([modes, ntraces, nper], np.float32)
 for mode in range(modes):
@@ -59,13 +57,13 @@ for mode in range(modes):
     b[mode, :, :] = diff
 
 # generate the sensitivity matrix
-sensmat = np.zeros([modes, nper, ntraces, n1g], np.float32)
+sensmat = np.zeros([modes, nper, ntraces, nz], np.float32)
 for mode in range(modes):
     # read kernels
     for iper in range(nper):
         fname='ker_M%1d_T%.2f.bin'%(mode, periods[iper])
         fin = os.path.join(wdir, fname)
-        dcdm = np.fromfile(fin, np.float32).reshape([ntraces, n1g])
+        dcdm = np.fromfile(fin, np.float32).reshape([ntraces, nz])
         sensmat[mode, iper, :, :] = dcdm
 
 # save the difference and sensmat
@@ -75,14 +73,15 @@ res = []
 rows = np.zeros(n1, np.int32)
 offset0 = np.arange(n1)
 num = n3*n2*n1
-n1g2 = n1*inc1
-profile = np.zeros(n1g2, np.float32)
+nz2 = n1*incz
+profile = np.zeros(nz2, np.float32)
 for mode, itr, iper in zip(idxs[0], idxs[1], idxs[2]):
-    i3, i2 = offsets[itr]//n2g, offsets[itr]%n2g
-    I3, I2 = i3//inc3, i2//inc2
+    # i3, i2 = offsets[itr]//ny, offsets[itr]%ny
+    # I3, I2 = i3//incx, i2//incy
+    I3, I2 = ixs[itr]//incx, iys[itr]//incy
     cols = (I2 + I3*n2)*n1 + offset0
-    profile[:n1g] = sensmat[mode, iper, itr, :]
-    profile2 = profile.reshape(n1, inc1).sum(axis=1)
+    profile[:nz] = sensmat[mode, iper, itr, :]
+    profile2 = profile.reshape(n1, incz).sum(axis=1)
     cscmat = sparse.csr_matrix((profile2, (rows, cols)), shape=(1, num))
     res.append(cscmat)
     

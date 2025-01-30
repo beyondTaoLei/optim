@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-import os, sys
+import os
+import sys
+import glob
 import numpy as np
 import pandas as pd
 import matplotlib.pylab as plt
@@ -24,18 +26,29 @@ def plot_L_curve(phim, phid, lam, fout):
     plt.show()
 
 #Input paras
-fcurve      =sys.argv[1]
-fout        =fcurve.replace(fcurve.split('/')[-1],'L_curve.eps')
-pd_data=pd.read_csv(fcurve)
-idx=np.array(pd_data["idx"])
-lam=np.array(pd_data["lambda"])
-phid=np.array(pd_data["phid"])
-phim=np.array(pd_data["phim"])
-bnorm=np.array(pd_data["bnorm"])
+fiterc = sys.argv[1]
+
+# merge L_curve*.dat to L_curve.csv
+L_list = glob.glob(fiterc+'/L_curve*.dat')
+df = pd.concat(map(pd.read_csv, L_list),ignore_index=True)
+df = df.sort_values(by='lambda', ascending=False)
+num = len(df)
+df['idx'] = np.arange(num)
+fnm = os.path.join(fiterc, 'L_curve.csv')
+df.to_csv(fnm, index=False)
+# print(df)
+
+# plot L-curve
+idx=np.array(df["idx"])
+lam=np.array(df["lambda"])
+phid=np.array(df["phid"])
+phim=np.array(df["phim"])
+bnorm=np.array(df["bnorm"])
 print("idx     lam         phid        phim        bnorm    lam*phim  lam*phim/phid  phid/bnorm")
 for i in range(len(lam)):
     print("%3d %11.4e %11.4e %11.4e %11.4e %11.4e %11.4e %11.4e"% \
         (i, lam[i], phid[i], phim[i], bnorm[i], lam[i]*phim[i], lam[i]*phim[i]/phid[i], phid[i]/bnorm[i]))
+fout = os.path.join(fiterc, 'L_curve.png')
 plot_L_curve(phim, phid, lam, fout)
 
 print("Finished...", __file__)

@@ -24,3 +24,20 @@ def BLOCK_HIGH(rank,size,n):
 def BLOCK_SIZE(rank,size,n):
     return BLOCK_HIGH(rank,size,n)-BLOCK_LOW(rank,size,n)+1
 
+def linefitting(Xs, Ys):
+  '''
+  Least square method line fitting Y = a*X + b
+  '''
+  N = len(Xs)
+  l1 = np.sum(Xs)
+  l2 = np.sum(Ys)
+  l3 = np.sum(Xs*Ys)
+  l4 = np.sum(Xs*Xs)
+  a = (N * l3 - l1 * l2) / (N * l4 - l1 * l1)
+  b = (l4* l2 - l1 * l3) / (N * l4 - l1 * l1)
+  ave = l2 / N
+  return a, b, ave
+
+def fun(a,b):
+  return a+b
+

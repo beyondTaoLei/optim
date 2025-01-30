@@ -23,14 +23,12 @@ foptim      =os.path.join(fdir,'optim.json')
 optim       =eval(open(foptim).read())
 fmod        =optim['fmodfd']
 fperiods    =optim['fperiods']
-fcmp        =optim['fcmp']
+fstn        =optim['fstn']
 wdir        =optim['wdir']
 algo        =optim['algo'] #'dunkin'
 wavetype    =optim['wavetype']#'love' or 'rayleigh'
-nper        =optim['nper']
-ntraces     =optim['ntraces']
-n1          =optim['n1g']
-d1          =optim['d1g']
+nx, ny, nz  =optim['nxyzfd']
+dx, dy, dz  =optim['dxyzfd']
 maxmode     =optim['maxmode']
 modes       =maxmode + 1
 
@@ -39,7 +37,7 @@ if 'pertb' in optim.keys():
     pertb = optim['pertb']
 else:
     pertb = 0.001
-pertbs = (-1.0)**np.arange(n1)*pertb
+pertbs = (-1.0)**np.arange(nz)*pertb
 
 # make directory
 if MYID == 0:
@@ -51,26 +49,31 @@ comm.Barrier()
 
 # interpretation
 df = pd.read_csv(fperiods)
+nper = df.shape[0]
 periods = np.array(df['T0'])
 
-# read indexes of CMP
-df = pd.read_csv(fcmp)
-offsets = df['offset']
+# read indexes of stations
+df = pd.read_csv(fstn)
+ntraces = df.shape[0]
+# offsets = df['offset']
+ixs = df['ix']
+iys = df['iy']
 idx1  =BLOCK_LOW(MYID,NP,ntraces)
 idx2  =BLOCK_HIGH(MYID,NP,ntraces)
 mynum =BLOCK_SIZE(MYID,NP,ntraces)
 
 # split models
-modloc=np.zeros([3, mynum, n1], np.float32) #period from short to long
+modloc=np.zeros([3, mynum, nz], np.float32) #period from short to long
 fvp = fmod[:-3]+'.vp'
 fvs = fmod[:-3]+'.vs'
 frho = fmod[:-3]+'.rho'
 for idx in range(idx1, idx2+1):
     i = idx - idx1
-    offset1 = offsets[idx]*n1*4
-    vp1d = np.fromfile(fvp, np.float32, n1, offset=offset1)
-    vs1d = np.fromfile(fvs, np.float32, n1, offset=offset1)
-    rho1d = np.fromfile(frho, np.float32, n1, offset=offset1)
+    # offset1 = offsets[idx]*nz*4
+    offset1 = (iys[idx] + ixs[idx]*ny)*nz*4
+    vp1d = np.fromfile(fvp, np.float32, nz, offset=offset1)
+    vs1d = np.fromfile(fvs, np.float32, nz, offset=offset1)
+    rho1d = np.fromfile(frho, np.float32, nz, offset=offset1)
     modloc[0,i,:] = vp1d/1000.0
     modloc[1,i,:] = vs1d/1000.0 + pertbs
     modloc[2,i,:] = rho1d/1000.0
@@ -79,8 +82,8 @@ for idx in range(idx1, idx2+1):
 modloc.tofile(os.path.join(wdir, 'part', 'mod_id%02d.bin'%MYID))
 
 # run FD
-model=np.zeros([n1, 4])
-coordz1d = np.arange(n1)*d1
+model=np.zeros([nz, 4])
+coordz1d = np.arange(nz)*dz
 z = coordz1d/1000.0 #'kilometers'
 tn = np.append(np.diff(z), [0, ])
 model[:,0] = tn
@@ -98,7 +101,8 @@ for idx in range(idx1, idx2+1):
             nper0 = len(pers)
         except:
             #smooth model
-            print("smoothing at index: ", offsets[idx])
+            # print("smoothing at index: ", offsets[idx])
+            print("smoothing at index: ", ixs[idx], iys[idx])
             model[:,2] = gaussian_filter(model[:,2], 6, mode='nearest')
             pd0 = PhaseDispersion(*model.T, algorithm=algo)
             #retry
@@ -108,7 +112,8 @@ for idx in range(idx1, idx2+1):
                 nper0 = len(pers)
             except:
                 nper0 = 0
-                print("Warning: an exception occurred at index: ", offsets[idx])
+                # print("Warning: an exception occurred at index: ", offsets[idx])
+                print("Warning: an exception occurred at index: ", ixs[idx], iys[idx])
         #if nper0 > 0:
         phvel[mode, i, :nper0] = cs
 
