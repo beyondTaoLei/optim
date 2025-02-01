@@ -57,6 +57,7 @@ optim={
     'pro'                   :0.01,                      #[IN] (Ei2 - Ei) / Ei2
     'pro2'                  :0.01,                      #[IN] k2 / k1 
     'pro3'                  :0.01,                      #[IN] average2 / average1 
+    'time_sleep'            :10,                        #[IN] time interval for checking whether current step has completed, in second
 }
 
 optim['demoroot'] = os.path.dirname(os.path.dirname(__file__)) #.../surfacewave

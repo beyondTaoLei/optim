@@ -28,10 +28,11 @@ def check_status_end(fnm, flag_finished, flag_failed, nL=10):
 #Input paras
 fdir          =sys.argv[1] # optim
 foptim        =os.path.join(fdir,'optim.json')
+optim         =eval(open(foptim).read())
+time_sleep    =optim['time_sleep'] # seconds
+nL            =10 # number of lines to check in the end of output file
 flag_finished ='Exiting successfully'
 flag_failed   ='Exiting unsuccessfully'
-time_sleep    =60 # seconds
-nL            =10 # number of lines to check in the end of output file
 
 #Input paras
 dirjob = 'job'
