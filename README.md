@@ -24,3 +24,5 @@ Considering the runtime of optimization module is much smaller than that of geop
 *   **Assemble the inverse workflow by writing short programs.**
     All programs start to work from a shared configuration which saves the necessary parameters and file paths. The output files from the former steps will be entered into the latter step. "Do one thing and do it well" will keep the whole workflow simple and clear.
 
+# REFERENCES
+[1] Lei, T., Zhang, W., Lu, Y. & Yang, L., 2025. OPTIM: A Python-based optimization framework for geophysical problems. Computers & Geosciences, 201, 105930. doi:https://doi.org/10.1016/j.cageo.2025.105930
